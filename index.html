@@ -368,7 +368,15 @@ function saveAsImage() {
     html2canvas(target, { 
         backgroundColor: null, 
         scale: 2, 
-        useCORS: true 
+        useCORS: true,
+        width: 600,
+        height: 450, 
+        windowWidth: 600, 
+        windowHeight: 450, 
+        x: 0,            
+        y: 0,
+        scrollX: 0, 
+        scrollY: 0
     }).then(canvas => {
         target.style.transform = originalTransform;
         const link = document.createElement('a');
