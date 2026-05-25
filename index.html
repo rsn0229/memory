@@ -409,30 +409,34 @@
         });
     });
 
-    document.getElementById('bgImageInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { 
-                bgLayer.style.backgroundImage = `url("${ev.target.result}")`; 
-                bgLayer.style.display = 'block'; 
-                bgControlsPanel.style.display = 'flex'; 
-                updateBgStyle(); 
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+document.getElementById('bgImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { 
+            const bgImg = document.getElementById('bgImg');
+            bgImg.src = ev.target.result;
+            bgLayer.style.display = 'block'; 
+            bgControlsPanel.style.display = 'flex'; 
+            updateBgStyle(); 
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
 function updateBgStyle() {
     const bgImg = document.getElementById('bgImg');
+    const bgLayer = document.getElementById('bgLayer');
     if (!bgImg) return;
     
+    bgLayer.style.backgroundImage = 'none'; 
+
+    bgImg.style.opacity = document.getElementById('bgOpacity').value;
+
     const scale = document.getElementById('bgScale').value;
     const posX = document.getElementById('bgPosX').value;
     const posY = document.getElementById('bgPosY').value;
-    const opacity = document.getElementById('bgOpacity').value;
-
-    bgImg.style.opacity = opacity;
+    
     bgImg.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
 }
 
