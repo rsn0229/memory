@@ -165,7 +165,15 @@
             box-sizing: border-box; overflow: hidden; border-radius: 4px; transform-origin: center center;
         }
 
-        #bgLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; display: none; }
+        #bgLayer { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; 
+    display: none; 
+    background-size: cover; 
+    background-position: 50% 50%; 
+    background-repeat: no-repeat;
+    opacity: 0.4;
+    pointer-events: none;
+}
 
         #bgLayer img {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -242,7 +250,7 @@
             <div class="preview-container" id="previewContainer">
                 <div id="scaleWrapper">
                     <div class="capture-wrapper" id="captureTarget">
-                        <div id="bgLayer"><img id="bgImg" src="" alt="배경"></div>
+                        <div id="bgLayer"></div>
                         <div class="canvas-credit">
                             <div>@229x812</div>
                             <div id="previewCommission" class="commission-credit"></div>
@@ -338,24 +346,36 @@
         const bgLayer = document.getElementById('bgLayer');
         const bgControlsPanel = document.getElementById('bgControlsPanel');
 
-        document.getElementById('bgImageInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => { bgImg.src = ev.target.result; bgLayer.style.display = 'block'; bgControlsPanel.style.display = 'flex'; updateBgStyle(); };
-                reader.readAsDataURL(file);
-            }
-        });
+document.getElementById('bgImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { 
+            bgLayer.style.backgroundImage = `url('${ev.target.result}')`; 
+            bgLayer.style.display = 'block'; 
+            bgControlsPanel.style.display = 'flex'; 
+            updateBgStyle(); 
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
-        function removeBgImage() {
-            bgLayer.style.display = 'none'; bgImg.src = ''; document.getElementById('bgImageInput').value = ''; bgControlsPanel.style.display = 'none';
-        }
+function removeBgImage() {
+    bgLayer.style.display = 'none'; 
+    bgLayer.style.backgroundImage = '';
+    document.getElementById('bgImageInput').value = ''; 
+    bgControlsPanel.style.display = 'none';
+}
 
-        function updateBgStyle() {
-            bgImg.style.opacity = document.getElementById('bgOpacity').value;
-            bgImg.style.transform = `scale(${document.getElementById('bgScale').value})`;
-            bgImg.style.objectPosition = `calc(50% + ${document.getElementById('bgPosX').value}px) calc(50% + ${document.getElementById('bgPosY').value}px)`;
-        }
+function updateBgStyle() {
+    bgLayer.style.opacity = document.getElementById('bgOpacity').value;
+    const scale = document.getElementById('bgScale').value;
+    bgLayer.style.backgroundSize = `${scale * 100}%`; 
+    
+    const posX = document.getElementById('bgPosX').value;
+    const posY = document.getElementById('bgPosY').value;
+    bgLayer.style.backgroundPosition = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
+}
 
         ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
             document.getElementById(id).addEventListener('input', updateBgStyle);
