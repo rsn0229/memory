@@ -452,7 +452,8 @@
     function saveAsImage() {
         const target = document.getElementById('captureTarget');
         if (!target) return;
-
+        
+        // 캡처 전, 임시로 transform을 초기화하여 캡처 범위를 정확히 잡습니다.
         const originalTransform = target.style.transform;
         target.style.transform = 'scale(1)';
 
@@ -461,22 +462,30 @@
             scale: 2, 
             useCORS: true, 
             allowTaint: false,
+            // 💡 여기서 클론을 세밀하게 제어합니다
             onclone: (clonedDoc) => {
                 const clonedBgImg = clonedDoc.getElementById('bgImg');
                 const originalBgImg = document.getElementById('bgImg');
-                
-                clonedDoc.getElementById('captureTarget').style.transform = 'none';
+                const clonedBgLayer = clonedDoc.getElementById('bgLayer');
                 
                 if (clonedBgImg && originalBgImg) {
+                    // 1. 이미지가 정상적으로 보이도록 강제 설정
                     clonedBgImg.src = originalBgImg.src;
                     clonedBgImg.style.display = 'block';
                     clonedBgImg.style.opacity = originalBgImg.style.opacity;
                     clonedBgImg.style.transform = originalBgImg.style.transform;
                     clonedBgImg.style.objectFit = 'cover';
+                    
+                    // 2. 부모 레이어도 강제 표시
+                    if(clonedBgLayer) {
+                        clonedBgLayer.style.display = 'block';
+                    }
                 }
             }
         }).then(canvas => {
+            // 캡처 후 원상복구
             target.style.transform = originalTransform;
+            
             const link = document.createElement('a');
             link.download = "기억의_조각.png";
             link.href = canvas.toDataURL('image/png'); 
@@ -484,7 +493,7 @@
         }).catch(err => {
             target.style.transform = originalTransform;
             console.error("캡처 실패:", err);
-            alert("저장 실패! 로컬 서버 환경인지 확인하세요.");
+            alert("저장 실패! 다시 시도해주세요.");
         });
     }
 
