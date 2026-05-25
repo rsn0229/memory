@@ -6,16 +6,6 @@
     <title>기억의 조각</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <script>
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83)) { 
-                e.preventDefault();
-                return false;
-            }
-        });
-    </script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
@@ -33,224 +23,67 @@
             --canvas-bg: #f4f5f6;
         }
 
-        body {
-            font-family: 'Gowun Dodum', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--mem-modal-text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-        }
-
-        .main-layout {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            max-width: 1100px;
-            width: 100%;
-            align-items: flex-start;
-            justify-content: center;
-        }
-
-        .result-area {
-            flex: 2; 
-            min-width: 340px;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid var(--mem-border-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden;
-            box-sizing: border-box;
-            position: sticky;
-            top: 20px;
-            z-index: 10;
-        }
-
-        .result-header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            margin-bottom: 10px;
-            border-bottom: 2px solid var(--mem-border-color);
-        }
-
+        body { font-family: 'Gowun Dodum', sans-serif; background-color: var(--bg-color); color: var(--mem-modal-text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; user-select: none; }
+        .main-layout { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1100px; width: 100%; align-items: flex-start; justify-content: center; }
+        .result-area { flex: 2; min-width: 340px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--mem-border-color); display: flex; flex-direction: column; align-items: center; overflow: hidden; box-sizing: border-box; position: sticky; top: 20px; z-index: 10; }
+        .result-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 2px solid var(--mem-border-color); }
         .result-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
-
-        .preview-container {
-            width: 100%;
-            height: 470px;
-            display: grid;
-            place-items: center;
-            overflow: hidden; 
-            padding: 10px 0;
-            box-sizing: border-box;
-        }
-
-        #scaleWrapper {
-            position: relative;
-            width: 600px;
-            height: 450px;
-        }
-
+        .preview-container { width: 100%; height: 470px; display: grid; place-items: center; overflow: hidden; padding: 10px 0; box-sizing: border-box; }
+        #scaleWrapper { position: relative; width: 600px; height: 450px; }
         .controls-area { flex: 1; min-width: 320px; z-index: 5; }
-
-        .maker-container {
-            background: #ffffff;
-            border: 1px solid var(--mem-border-color);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            box-sizing: border-box;
-        }
-
+        .maker-container { background: #ffffff; border: 1px solid var(--mem-border-color); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
         .maker-title { font-size: 1.3rem; font-weight: 700; margin-top: 0; margin-bottom: 20px; text-align: center; }
-
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
         .mode-toggle input[type="radio"] { display: none; }
-        .mode-toggle label {
-            padding: 8px 16px; border: 1px solid var(--mem-border-color);
-            border-radius: 20px; cursor: pointer; transition: all 0.2s;
-            font-size: 0.95rem; font-weight: 600; color: var(--mem-modal-subtext);
-            background: #fff;
-        }
-        .mode-toggle input[type="radio"]:checked + label {
-            background-color: var(--mem-modal-text); color: #fff; border-color: var(--mem-modal-text);
-        }
-
-        .section-title {
-            font-size: 1.05rem; font-weight: 700; color: var(--mem-modal-text);
-            margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px dashed #eee;
-        }
-
+        .mode-toggle label { padding: 8px 16px; border: 1px solid var(--mem-border-color); border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; font-weight: 600; color: var(--mem-modal-subtext); background: #fff; }
+        .mode-toggle input[type="radio"]:checked + label { background-color: var(--mem-modal-text); color: #fff; border-color: var(--mem-modal-text); }
+        .section-title { font-size: 1.05rem; font-weight: 700; color: var(--mem-modal-text); margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px dashed #eee; }
         .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
-
         .input-group label { font-size: 0.95rem; font-weight: 700; margin-bottom: 5px; color: var(--mem-modal-subtext); }
-        
-        .input-help { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
-
-        .input-group input[type="text"], .input-group textarea {
-            padding: 10px; border: 1px solid var(--mem-border-color); background: var(--bg-color);
-            color: var(--mem-modal-text); font-family: 'Gowun Dodum', sans-serif;
-            border-radius: 6px; outline: none; font-size: 0.95rem;
-        }
-
+        .input-group input[type="text"], .input-group textarea { padding: 10px; border: 1px solid var(--mem-border-color); background: var(--bg-color); color: var(--mem-modal-text); font-family: 'Gowun Dodum', sans-serif; border-radius: 6px; outline: none; font-size: 0.95rem; }
         .input-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-
         .file-input-wrapper { display: flex; align-items: center; gap: 10px; width: 100%; }
-
         .file-input-wrapper input[type="file"] { flex: 1; min-width: 0; font-family: 'Gowun Dodum', sans-serif; font-size: 0.85rem; }
-
-        .clear-btn {
-            flex-shrink: 0; background: #e2e8f0; border: none; padding: 6px 10px;
-            border-radius: 4px; cursor: pointer; font-family: 'Gowun Dodum', sans-serif;
-            font-size: 0.8rem; white-space: nowrap; word-break: keep-all;
-        }
-
+        .clear-btn { flex-shrink: 0; background: #e2e8f0; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: 'Gowun Dodum', sans-serif; font-size: 0.8rem; }
         .clear-btn:hover { background: #cbd5e0; }
-
-        #bgControlsPanel {
-            display: none; background: #f9f9f9; padding: 12px; border-radius: 8px;
-            border: 1px solid #eee; margin-top: 10px; gap: 10px; flex-direction: column;
-        }
-
+        #bgOpacityPanel { display: none; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; gap: 10px; flex-direction: column; }
         .slider-row { display: flex; align-items: center; gap: 10px; }
-        
         .slider-row label { font-size: 0.8rem; width: 70px; margin: 0; }
-
         .slider-row input[type="range"] { flex: 1; cursor: pointer; }
-
-        .capture-wrapper {
-            width: 600px; height: 450px; background-color: var(--canvas-bg); 
-            display: flex; justify-content: center; align-items: center; position: absolute;
-            top: 0; left: 0;
-            box-sizing: border-box; overflow: hidden; border-radius: 4px; transform-origin: top left;
-        }
-
-        #bgLayer { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; 
-            display: none; 
-            background-size: cover; 
-            background-position: 50% 50%; 
-            background-repeat: no-repeat;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        #bgLayer img {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; object-position: 50% 50%; transform-origin: center center;
-            opacity: 0.4; pointer-events: none;
-        }
-
-        .canvas-credit {
-            position: absolute; bottom: 14px; right: 16px; z-index: 2; text-align: right; color: #ffffff;
-            font-family: 'Pretendard', sans-serif; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;
-            pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 2px rgba(0,0,0,0.3);
+        .capture-wrapper { width: 600px; height: 450px; background-color: var(--canvas-bg); display: flex; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; box-sizing: border-box; overflow: hidden; border-radius: 4px; transform-origin: top left; }
+        #bgLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; background-size: cover; background-position: 50% 50%; background-repeat: no-repeat; opacity: 1; pointer-events: none; }
+        #bgImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1; pointer-events: none; }
+        .canvas-credit { position: absolute; bottom: 14px; right: 16px; z-index: 2; text-align: right; color: #ffffff; font-family: 'Pretendard', sans-serif; font-size: 0.8rem; line-height: 1.4; opacity: 0.85; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 2px rgba(0,0,0,0.3); }
+        .commission-credit { font-size: 0.75rem; }
+        
+        #cardsContainer { display: flex; gap: 30px; justify-content: center; align-items: stretch; z-index: 1; width: 100%; }
+        .card-container { position: relative; width: 210px; min-height: 310px; }
+        
+        .hard-shadow-layer {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.2);
         }
         
-        .commission-credit { font-size: 0.75rem; }
-
-        #cardsContainer {
-            display: flex; gap: 30px; justify-content: center; align-items: stretch; z-index: 1; width: 100%;
-        }
-
-        .mem-card {
-            background: linear-gradient(to bottom, var(--mem-modal-bg-grad-start) 0%, var(--mem-modal-bg-grad-end) 100%);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            width: 210px; min-height: 310px; position: relative; z-index: 1; display: flex; 
-            flex-direction: column; padding: 38px 10px 10px 10px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.25), 0 5px 10px rgba(0,0,0,0.1);
-            box-sizing: border-box; font-family: 'Pretendard', sans-serif;
-        }
-
+        .mem-card { background: linear-gradient(to bottom, var(--mem-modal-bg-grad-start) 0%, var(--mem-modal-bg-grad-end) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); width: 210px; min-height: 310px; position: relative; z-index: 1; display: flex; flex-direction: column; padding: 38px 10px 10px 10px; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+        
         .mem-card-header { position: absolute; top: 0; left: 0; width: 100%; height: 38px; display: flex; align-items: center; justify-content: flex-start; padding-left: 12px; box-sizing: border-box; }
-
-        .mem-card-title {
-            color: var(--mem-modal-text); font-size: 0.95rem; font-weight: 500; 
-            letter-spacing: -0.8px; transform: scaleX(0.95); transform-origin: left center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%;
-        }
-
+        .mem-card-title { color: var(--mem-modal-text); font-size: 0.95rem; font-weight: 500; letter-spacing: -0.8px; transform: scaleX(0.95); transform-origin: left center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%; }
         .mem-card-inner { background-color: var(--mem-modal-inner-bg); flex: 1; display: flex; flex-direction: column; align-items: center; padding: 15px; }
-
         .mem-icon-box { width: 55px; height: 55px; background-color: var(--mem-icon-bg); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
-
         .mem-card-icon { font-size: 2.3rem; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); font-family: 'Noto Color Emoji', sans-serif; line-height: 1; }
-
-        .mem-card-desc {
-            font-size: 0.85rem; color: var(--mem-modal-text); line-height: 1.6; font-weight: 400; 
-            letter-spacing: -0.3px; transform: scaleX(0.96); word-break: keep-all; transform-origin: top center; text-align: center; margin-bottom: 12px; 
-            display: -webkit-box;
-            -webkit-line-clamp: 5;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .mem-counter-box {
-            margin-top: auto; background-color: var(--mem-icon-bg); color: var(--mem-modal-subtext); 
-            padding: 4px 12px; font-size: 0.8rem; font-weight: 400; letter-spacing: -0.5px; transform: scaleX(0.95); 
-        }
-
-        .download-btn {
-            padding: 8px 16px; background-color: #888888; color: white; border: none;
-            border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-family: 'Gowun Dodum', sans-serif;
-            transition: background-color 0.2s;
-        }
+        .mem-card-desc { font-size: 0.85rem; color: var(--mem-modal-text); line-height: 1.6; font-weight: 400; letter-spacing: -0.8px; transform: scaleX(0.95); word-break: keep-all; transform-origin: top center; text-align: center; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .mem-counter-box { margin-top: auto; background-color: var(--mem-icon-bg); color: var(--mem-modal-subtext); padding: 4px 12px; font-size: 0.8rem; font-weight: 400; letter-spacing: -0.5px; transform: scaleX(0.95); }
+        
+        .download-btn { padding: 8px 16px; background-color: #888888; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-family: 'Gowun Dodum', sans-serif; transition: background-color 0.2s; }
         .download-btn:hover { background-color: #666666; }
-
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 640px; text-align: center; }
+        #cropCanvas { border: 2px solid #ccc; cursor: move; touch-action: none; background: #eee; }
+        .modal-btns { margin-top: 15px; display: flex; gap: 10px; justify-content: center; }
         @media (max-width: 768px) {
             body { padding: 10px; }
             .result-area { position: sticky; top: 0; padding: 10px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: -10px -10px 10px -10px; width: calc(100% + 20px); }
@@ -261,44 +94,57 @@
 </head>
 <body>
 
+    <div class="modal-overlay" id="cropModal">
+        <div class="modal-content">
+            <h3>영역을 드래그해 옮기고 휠로 확대하세요</h3>
+            <canvas id="cropCanvas" width="600" height="450"></canvas>
+            <div class="modal-btns">
+                <button class="download-btn" onclick="applyCrop()">적용</button>
+                <button class="clear-btn" onclick="closeModal()">취소</button>
+            </div>
+        </div>
+    </div>
+
     <div class="main-layout">
         <div class="result-area">
             <div class="result-header">
                 <h3>미리보기</h3>
                 <button class="download-btn" onclick="saveAsImage()">이미지 저장</button>
             </div>
-            
             <div class="preview-container" id="previewContainer">
                 <div id="scaleWrapper">
                     <div class="capture-wrapper" id="captureTarget">
-<div id="bgLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; overflow: hidden;">
-    <img id="bgImg" style="width: 100%; height: 100%; object-fit: cover; transform-origin: center center;">
-</div>
+                        <div id="bgLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; overflow: hidden;">
+                             <img id="bgImg" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
                         <div class="canvas-credit">
                             <div>@229x812</div>
                             <div id="previewCommission" class="commission-credit"></div>
                         </div>
-                        
                         <div id="cardsContainer">
-                            <div class="mem-card" id="card1">
-                                <div class="mem-card-header"><span class="mem-card-title" id="previewTitle1">◇ 작은 해파리 모빌</span></div>
-                                <div class="mem-card-inner">
-                                    <div class="mem-icon-box"><span class="mem-card-icon" id="previewIcon1">🪼</span></div>
-                                    <div class="mem-card-desc" id="previewDesc1">해파리 모양의 유리 장식품. 집무실에는 영 어울리지 않는다며 핀잔을 주었지만, 바람에 흔들리는 모습을 볼 때마다 미소를 짓곤 한다.</div>
-                                    <div class="mem-counter-box" id="previewIndex1">???의 기억</div>
+                            <div class="card-container" id="cardWrapper1">
+                                <div class="hard-shadow-layer"></div>
+                                <div class="mem-card" id="card1">
+                                    <div class="mem-card-header"><span class="mem-card-title" id="previewTitle1">◇ 작은 해파리 모빌</span></div>
+                                    <div class="mem-card-inner">
+                                        <div class="mem-icon-box"><span class="mem-card-icon" id="previewIcon1">🪼</span></div>
+                                        <div class="mem-card-desc" id="previewDesc1">해파리 모양의 유리 장식품. 집무실에는 영 어울리지 않는다며 핀잔을 주었지만, 바람에 흔들리는 모습을 볼 때마다 미소를 짓곤 한다.</div>
+                                        <div class="mem-counter-box" id="previewIndex1">???의 기억</div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="mem-card" id="card2" style="display: none;">
-                                <div class="mem-card-header"><span class="mem-card-title" id="previewTitle2">◇ 책상 위의 화분</span></div>
-                                <div class="mem-card-inner">
-                                    <div class="mem-icon-box"><span class="mem-card-icon" id="previewIcon2">🪴</span></div>
-                                    <div class="mem-card-desc" id="previewDesc2">삭막한 집무실에 생기를 불어넣겠다며 들고 온 식물. 햇빛이 잘 드는 창가에 놓인 채, 두 사람의 애정 어린 눈길을 받으며 무럭무럭 자라고 있다.</div>
-                                    <div class="mem-counter-box" id="previewIndex2">???의 기억</div>
+                            <div class="card-container" id="cardWrapper2" style="display: none;">
+                                <div class="hard-shadow-layer"></div>
+                                <div class="mem-card" id="card2">
+                                    <div class="mem-card-header"><span class="mem-card-title" id="previewTitle2">◇ 책상 위의 화분</span></div>
+                                    <div class="mem-card-inner">
+                                        <div class="mem-icon-box"><span class="mem-card-icon" id="previewIcon2">🪴</span></div>
+                                        <div class="mem-card-desc" id="previewDesc2">삭막한 집무실에 생기를 불어넣겠다며 들고 온 식물. 햇빛이 잘 드는 창가에 놓인 채, 두 사람의 애정 어린 눈길을 받으며 무럭무럭 자라고 있다.</div>
+                                        <div class="mem-counter-box" id="previewIndex2">???의 기억</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -308,38 +154,30 @@
             <div class="maker-container">
                 <h2 class="maker-title">기억의 조각 만들기</h2>
                 <form id="itemForm" onsubmit="event.preventDefault();">
-                    
                     <div class="mode-toggle">
                         <input type="radio" id="mode1" name="personMode" value="1" checked>
                         <label for="mode1">1인</label>
                         <input type="radio" id="mode2" name="personMode" value="2">
                         <label for="mode2">2인</label>
                     </div>
-
                     <div class="input-group">
-                        <label for="bgImageInput">배경 이미지 (선택)</label>
+                        <label for="bgImageInput">배경 이미지 설정</label>
                         <div class="file-input-wrapper">
                             <input type="file" id="bgImageInput" accept="image/*">
                             <button type="button" class="clear-btn" onclick="removeBgImage()">지우기</button>
                         </div>
-                        <div id="bgControlsPanel">
-                            <div class="slider-row"><label>투명도</label><input type="range" id="bgOpacity" min="0" max="1" step="0.05" value="0.4"></div>
-                            <div class="slider-row"><label>크기 확대</label><input type="range" id="bgScale" min="1" max="5" step="0.1" value="1"></div>
-                            <div class="slider-row"><label>좌우 범위</label><input type="range" id="bgPosX" min="-600" max="600" value="0"></div>
-                            <div class="slider-row"><label>상하 범위</label><input type="range" id="bgPosY" min="-450" max="450" value="0"></div>
+                        <div id="bgOpacityPanel">
+                            <div class="slider-row"><label>투명도</label><input type="range" id="bgOpacity" min="0" max="1" step="0.01" value="1"></div>
                         </div>
                     </div>
                     <div class="input-group">
                         <label for="commissionInput">배경 이미지 출처</label>
-                        <div class="input-help">커미션 출처를 적으면 아이디 아래에 표기됩니다. (공란 가능)</div>
                         <input type="text" id="commissionInput" placeholder="예: Commission by. 000">
                     </div>
-                    
                     <div id="person1Controls">
                         <div class="section-title">첫 번째 기억</div>
                         <div class="input-group">
                             <label for="itemEmoji1">아이템 이모지</label>
-                            <div class="input-help">윈도우키 + 마침표(.)를 눌러 이모지를 추가하세요.</div>
                             <input type="text" id="itemEmoji1" value="🪼">
                         </div>
                         <div class="input-group">
@@ -355,12 +193,10 @@
                             <input type="text" id="itemIndex1" value="">
                         </div>
                     </div>
-
                     <div id="person2Controls" style="display: none;">
                         <div class="section-title">두 번째 기억</div>
                         <div class="input-group">
                             <label for="itemEmoji2">아이템 이모지</label>
-                            <div class="input-help">윈도우키 + 마침표(.)를 눌러 이모지를 추가하세요.</div>
                             <input type="text" id="itemEmoji2" value="🪴">
                         </div>
                         <div class="input-group">
@@ -382,169 +218,145 @@
     </div>
 
 <script>
-    // 1. 모든 것이 준비된 후 실행되도록 "한 번에" 묶었습니다.
-    document.addEventListener('DOMContentLoaded', () => {
-        const bgLayer = document.getElementById('bgLayer');
-        const bgImg = document.getElementById('bgImg');
-        const bgControlsPanel = document.getElementById('bgControlsPanel');
-        const bgImageInput = document.getElementById('bgImageInput');
+    let rawImage = null;
+    let cropX = 0, cropY = 0;
+    let imgScale = 1; 
+    const canvas = document.getElementById('cropCanvas');
+    const ctx = canvas.getContext('2d');
 
-        // [슬라이더 연결] - input과 change 이벤트를 둘 다 걸어 확실하게 반응하게 합니다.
-        ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                ['input', 'change'].forEach(evt => {
-                    el.addEventListener(evt, updateBgStyle);
-                });
-            }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('bgOpacity').addEventListener('input', (e) => {
+            document.getElementById('bgImg').style.opacity = e.target.value;
         });
 
-        // [2인 모드 토글]
+        document.getElementById('bgImageInput').addEventListener('click', function() { this.value = ''; });
+        document.getElementById('bgImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    rawImage = img;
+                    const minScale = Math.max(600 / rawImage.width, 450 / rawImage.height);
+                    imgScale = minScale;
+                    cropX = (600 - rawImage.width * imgScale) / 2;
+                    cropY = (450 - rawImage.height * imgScale) / 2;
+                    
+                    document.getElementById('cropModal').style.display = 'flex';
+                    drawCropView();
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        let isDragging = false;
+        let startX, startY;
+        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.offsetX - cropX; startY = e.offsetY - cropY; });
+        canvas.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            cropX = e.offsetX - startX;
+            cropY = e.offsetY - startY;
+            applyBoundaries();
+            drawCropView();
+        });
+        canvas.addEventListener('mouseup', () => isDragging = false);
+
+        canvas.addEventListener('wheel', e => {
+            e.preventDefault();
+            const zoomFactor = 0.0005; 
+            const delta = -e.deltaY;
+            const newScale = imgScale * (1 + delta * zoomFactor);
+            const minScale = Math.max(600 / rawImage.width, 450 / rawImage.height);
+            imgScale = Math.max(minScale, Math.min(newScale, 5.0));
+            applyBoundaries();
+            drawCropView();
+        }, {passive: false});
+
         document.querySelectorAll('input[name="personMode"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 const isTwo = this.value === '2';
-                document.getElementById('card2').style.display = isTwo ? 'flex' : 'none';
+                document.getElementById('cardWrapper2').style.display = isTwo ? 'block' : 'none';
                 document.getElementById('person2Controls').style.display = isTwo ? 'block' : 'none';
             });
         });
-
-        // [이미지 업로드]
-        bgImageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => { 
-                    bgImg.src = ev.target.result;
-                    bgLayer.style.display = 'block'; 
-                    bgControlsPanel.style.display = 'flex'; 
-                    updateBgStyle(); 
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // [텍스트 업데이트]
-        document.getElementById('commissionInput').addEventListener('input', updatePreviewText);
-        ['1', '2'].forEach(num => {
-            ['itemEmoji', 'itemName', 'itemDesc', 'itemIndex'].forEach(id => {
-                const el = document.getElementById(`${id}${num}`);
-                if (el) el.addEventListener('input', updatePreviewText);
-            });
+        ['commissionInput', 'itemEmoji1', 'itemName1', 'itemDesc1', 'itemIndex1', 'itemEmoji2', 'itemName2', 'itemDesc2', 'itemIndex2'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updatePreviewText);
         });
     });
 
-    // [스타일 업데이트 함수]
-    function updateBgStyle() {
-        const bgImg = document.getElementById('bgImg');
-        if (!bgImg) return;
-        
-        const scale = document.getElementById('bgScale').value;
-        const posX = document.getElementById('bgPosX').value;
-        const posY = document.getElementById('bgPosY').value;
-        const opacity = document.getElementById('bgOpacity').value;
-
-        bgImg.style.opacity = opacity;
-        bgImg.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
-        console.log(`적용됨: scale=${scale}, x=${posX}, y=${posY}`); // 이제 이게 콘솔에 뜹니다!
+    function applyBoundaries() {
+        const w = rawImage.width * imgScale;
+        const h = rawImage.height * imgScale;
+        if (cropX > 0) cropX = 0;
+        if (cropX < 600 - w) cropX = 600 - w;
+        if (cropY > 0) cropY = 0;
+        if (cropY < 450 - h) cropY = 450 - h;
     }
 
-// [저장 함수 수정] - 캡처 시 레이아웃 오차를 제거합니다.
-function saveAsImage() {
-    const target = document.getElementById('captureTarget');
-    if (!target) return;
+    function drawCropView() {
+        if (!rawImage) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const w = rawImage.width * imgScale;
+        const h = rawImage.height * imgScale;
+        ctx.drawImage(rawImage, cropX, cropY, w, h);
+    }
 
-    // 1. 캡처 전, 스타일을 강제로 1:1로 고정하여 왜곡 방지
-    const originalTransform = target.style.transform;
-    const originalPosition = target.style.position;
-    const originalTop = target.style.top;
-    const originalLeft = target.style.left;
-
-    target.style.transform = 'scale(1)';
-    target.style.position = 'relative'; // 절대 위치에서 해제하여 레이아웃 밀림 방지
-    target.style.top = '0';
-    target.style.left = '0';
-
-    html2canvas(target, { 
-        backgroundColor: null, 
-        scale: 2,           // 화질 선명하게 유지
-        useCORS: true, 
-        allowTaint: false,
-        width: 600,         // 캔버스 크기 명시
-        height: 450,
-        onclone: (clonedDoc) => {
-            const clonedBgImg = clonedDoc.getElementById('bgImg');
-            const originalBgImg = document.getElementById('bgImg');
-            const clonedBgLayer = clonedDoc.getElementById('bgLayer');
-            
-            if (clonedBgImg && originalBgImg) {
-                clonedBgImg.src = originalBgImg.src;
-                clonedBgImg.style.display = 'block';
-                clonedBgImg.style.opacity = originalBgImg.style.opacity;
-                clonedBgImg.style.transform = originalBgImg.style.transform;
-            }
-            if(clonedBgLayer) {
-                clonedBgLayer.style.display = 'block';
-            }
-        }
-    }).then(canvas => {
-        // 2. 캡처 후 원래 스타일로 복구
-        target.style.transform = originalTransform;
-        target.style.position = originalPosition;
-        target.style.top = originalTop;
-        target.style.left = originalLeft;
+    function applyCrop() {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 600;
+        tempCanvas.height = 450;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(rawImage, cropX, cropY, rawImage.width * imgScale, rawImage.height * imgScale);
         
-        const link = document.createElement('a');
-        link.download = "기억의_조각.png";
-        link.href = canvas.toDataURL('image/png'); 
-        link.click();
-    }).catch(err => {
-        target.style.transform = originalTransform;
-        console.error("캡처 실패:", err);
-        alert("저장 실패! 다시 시도해주세요.");
-    });
-}
-    
+        const bgImg = document.getElementById('bgImg');
+        bgImg.src = tempCanvas.toDataURL('image/png');
+        document.getElementById('bgLayer').style.display = 'block';
+        document.getElementById('bgOpacityPanel').style.display = 'flex';
+        closeModal();
+    }
+
+    function closeModal() { document.getElementById('cropModal').style.display = 'none'; }
+
     function removeBgImage() {
         document.getElementById('bgLayer').style.display = 'none';
         document.getElementById('bgImg').src = '';
-        document.getElementById('bgControlsPanel').style.display = 'none';
+        document.getElementById('bgOpacityPanel').style.display = 'none';
     }
 
-// [리사이즈 함수 수정] - 뷰포트에 따라 적절하게 조절
-function resizePreview() {
-    const container = document.getElementById('previewContainer');
-    const scaleWrapper = document.getElementById('scaleWrapper');
-    const target = document.getElementById('captureTarget');
-    
-    // 부모 컨테이너 크기 확인
-    const containerWidth = container.clientWidth;
-    const targetWidth = 600;
-    const targetHeight = 450;
-    
-    // 비율 계산 (0.x배로 스케일링)
-    let scale = Math.min(1, containerWidth / targetWidth);
-    
-    // 이제 target 자체를 움직이지 않고 scaleWrapper로 스케일 조절을 분리합니다.
-    scaleWrapper.style.transform = `scale(${scale})`;
-    scaleWrapper.style.width = `${targetWidth}px`;
-    scaleWrapper.style.height = `${targetHeight}px`;
-    
-    // 부모(previewContainer)도 크기에 맞게 조절
-    container.style.height = `${targetHeight * scale}px`;
-}
+    function saveAsImage() {
+        const target = document.getElementById('captureTarget');
+        html2canvas(target, { 
+            backgroundColor: '#f4f5f6', 
+            scale: 2, 
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = "기억의_조각.png";
+            link.href = canvas.toDataURL('image/png'); 
+            link.click();
+        });
+    }
+
+    function resizePreview() {
+        const container = document.getElementById('previewContainer');
+        const scaleWrapper = document.getElementById('scaleWrapper');
+        const scale = Math.min(1, container.clientWidth / 600);
+        scaleWrapper.style.transform = `scale(${scale})`;
+        container.style.height = `${450 * scale}px`;
+    }
 
     function updatePreviewText() {
         ['1', '2'].forEach(num => {
             const title = document.getElementById(`itemName${num}`).value;
             const targetTitle = document.getElementById(`previewTitle${num}`);
             if (targetTitle) targetTitle.innerText = title.startsWith('◇') ? title : `◇ ${title}`;
-            
             const icon = document.getElementById(`previewIcon${num}`);
             if (icon) icon.innerText = document.getElementById(`itemEmoji${num}`).value;
-            
             const desc = document.getElementById(`previewDesc${num}`);
             if (desc) desc.innerHTML = document.getElementById(`itemDesc${num}`).value.replace(/\n/g, '<br>');
-            
             const index = document.getElementById(`previewIndex${num}`);
             if (index) index.innerText = document.getElementById(`itemIndex${num}`).value ? `${document.getElementById(`itemIndex${num}`).value}의 기억` : "???의 기억";
         });
