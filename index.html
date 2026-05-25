@@ -382,112 +382,94 @@
     </div>
 
 <script>
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83)) { 
-            e.preventDefault();
-            return false;
-        }
-    });
+    // 페이지가 완전히 로딩되면 실행하라!
+    window.addEventListener('DOMContentLoaded', () => {
+        const bgLayer = document.getElementById('bgLayer');
+        const bgControlsPanel = document.getElementById('bgControlsPanel');
+        const bgImg = document.getElementById('bgImg');
 
-    const bgLayer = document.getElementById('bgLayer');
-    const bgControlsPanel = document.getElementById('bgControlsPanel');
+        // [이벤트 연결] 슬라이더와 함수를 확실하게 연결
+        ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    console.log(`슬라이더 ${id} 감지됨!`); // 💡 이제 콘솔에 이게 떠야 합니다!
+                    updateBgStyle();
+                });
+            }
+        });
 
-    document.querySelectorAll('input[name="personMode"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const mode = this.value;
-            const card2 = document.getElementById('card2');
-            const controls2 = document.getElementById('person2Controls');
-
-            if (mode === '2') {
-                card2.style.display = 'flex';
-                controls2.style.display = 'block';
-            } else {
-                card2.style.display = 'none';
-                controls2.style.display = 'none';
+        // [이미지 업로드]
+        document.getElementById('bgImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { 
+                    bgImg.src = ev.target.result;
+                    bgLayer.style.display = 'block'; 
+                    bgControlsPanel.style.display = 'flex'; 
+                    updateBgStyle(); 
+                };
+                reader.readAsDataURL(file);
             }
         });
     });
 
-document.getElementById('bgImageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => { 
-            const bgImg = document.getElementById('bgImg');
-            bgImg.src = ev.target.result;
-            bgLayer.style.display = 'block'; 
-            bgControlsPanel.style.display = 'flex'; 
-            updateBgStyle(); 
-        };
-        reader.readAsDataURL(file);
+    // 배경 스타일 업데이트 함수
+    function updateBgStyle() {
+        const bgImg = document.getElementById('bgImg');
+        const bgLayer = document.getElementById('bgLayer');
+        if (!bgImg) return;
+
+        bgLayer.style.backgroundImage = 'none'; 
+        bgImg.style.opacity = document.getElementById('bgOpacity').value;
+        const scale = document.getElementById('bgScale').value;
+        const posX = document.getElementById('bgPosX').value;
+        const posY = document.getElementById('bgPosY').value;
+        
+        bgImg.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
     }
-});
 
-// [1] 수정된 updateBgStyle: 실시간 반영 로그 추가 및 안정화
-function updateBgStyle() {
-    const bgImg = document.getElementById('bgImg');
-    const bgLayer = document.getElementById('bgLayer');
-    if (!bgImg) return;
-    
-    // 💡 디버깅용: 슬라이더 움직일 때마다 콘솔에 찍힘. (F12 콘솔 확인!)
-    const scale = document.getElementById('bgScale').value;
-    const posX = document.getElementById('bgPosX').value;
-    const posY = document.getElementById('bgPosY').value;
-    const opacity = document.getElementById('bgOpacity').value;
-    console.log(`반영 중: scale=${scale}, x=${posX}, y=${posY}`); 
+    // [나머지 필수 기능들]
+    function saveAsImage() {
+        const target = document.getElementById('captureTarget');
+        if (!target) return;
+        const originalTransform = target.style.transform;
+        target.style.transform = 'scale(1)';
 
-    bgImg.style.opacity = opacity;
-    bgImg.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
-    bgLayer.style.display = 'block'; 
-}
-
-// [2] 수정된 saveAsImage: 가장 안전하게 속성을 복제합니다 (cssText 삭제)
-function saveAsImage() {
-    const target = document.getElementById('captureTarget');
-    if (!target) return;
-
-    const originalTransform = target.style.transform;
-    target.style.transform = 'scale(1)';
-
-    html2canvas(target, { 
-        backgroundColor: null, 
-        scale: 2, 
-        useCORS: true, 
-        allowTaint: false,
-        onclone: (clonedDoc) => {
-            const clonedBgImg = clonedDoc.getElementById('bgImg');
-            const originalBgImg = document.getElementById('bgImg');
-            
-            // 필수 속성만 명시적으로 복제 (절대 cssText 쓰지 않음!)
-            if (clonedBgImg && originalBgImg) {
-                clonedBgImg.src = originalBgImg.src;
-                clonedBgImg.style.display = 'block';
-                clonedBgImg.style.opacity = originalBgImg.style.opacity;
-                clonedBgImg.style.transform = originalBgImg.style.transform; // 실시간 이동 값 복제!
-                clonedBgImg.style.objectFit = 'cover';
+        html2canvas(target, { 
+            backgroundColor: null, 
+            scale: 2, 
+            useCORS: true, 
+            allowTaint: false,
+            onclone: (clonedDoc) => {
+                const clonedBgImg = clonedDoc.getElementById('bgImg');
+                const originalBgImg = document.getElementById('bgImg');
+                if (clonedBgImg && originalBgImg) {
+                    clonedBgImg.src = originalBgImg.src;
+                    clonedBgImg.style.display = 'block';
+                    clonedBgImg.style.opacity = originalBgImg.style.opacity;
+                    clonedBgImg.style.transform = originalBgImg.style.transform;
+                    clonedBgImg.style.objectFit = 'cover';
+                }
             }
-        },
-        width: 600,
-        height: 450
-    }).then(canvas => {
-        target.style.transform = originalTransform;
-        const link = document.createElement('a');
-        link.download = `${document.getElementById('itemName1').value || '기억'}.png`;
-        link.href = canvas.toDataURL('image/png'); 
-        link.click();
-    }).catch(err => {
-        target.style.transform = originalTransform;
-        console.error("캡처 실패:", err);
-        alert("저장에 실패했습니다!");
-    });
-}
+        }).then(canvas => {
+            target.style.transform = originalTransform;
+            const link = document.createElement('a');
+            link.download = "기억의_조각.png";
+            link.href = canvas.toDataURL('image/png'); 
+            link.click();
+        }).catch(err => {
+            target.style.transform = originalTransform;
+            console.error("캡처 실패:", err);
+            alert("저장 실패! 로컬 서버 환경인지 확인하세요.");
+        });
+    }
 
     function removeBgImage() {
-        bgLayer.style.display = 'none'; 
-        bgLayer.style.backgroundImage = '';
-        document.getElementById('bgImageInput').value = ''; 
-        bgControlsPanel.style.display = 'none';
+        document.getElementById('bgLayer').style.display = 'none';
+        document.getElementById('bgImg').src = '';
+        document.getElementById('bgControlsPanel').style.display = 'none';
     }
 
     function resizePreview() {
