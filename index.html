@@ -239,11 +239,16 @@
     const ctx = canvas.getContext('2d');
     const zoomSlider = document.getElementById('zoomSlider');
 
-    // 1. 미리보기 접기/펼치기
+
+// 1. 미리보기 접기/펼치기 (수정)
     function togglePreview() {
         const container = document.getElementById('previewContainer');
         if (container.style.display === 'none') {
             container.style.display = 'flex';
+            // 브라우저가 display: flex를 적용하고 화면에 그릴 시간을 줍니다.
+            requestAnimationFrame(() => {
+                resizePreview();
+            });
         } else {
             container.style.display = 'none';
         }
@@ -396,8 +401,12 @@ function saveAsImage() {
         });
     }
 
+    // 2. 미리보기 크기 조절 (수정)
     function resizePreview() {
         const container = document.getElementById('previewContainer');
+        // 요소가 숨겨져 있다면(offsetWidth가 0이면) 계산을 하지 않습니다.
+        if (container.offsetWidth === 0) return;
+
         const scaleWrapper = document.getElementById('scaleWrapper');
         const scale = Math.min(1, container.clientWidth / 600);
         scaleWrapper.style.transform = `scale(${scale})`;
