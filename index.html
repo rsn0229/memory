@@ -368,13 +368,31 @@
         document.getElementById('bgOpacityPanel').style.display = 'none';
     }
 
-    function saveAsImage() {
+function saveAsImage() {
         const target = document.getElementById('captureTarget');
-        html2canvas(target, { backgroundColor: '#f4f5f6', scale: 2, useCORS: true }).then(canvas => {
+        const wrapper = document.getElementById('scaleWrapper');
+        
+        // 1. 캡처 전에 transform을 일시적으로 초기화 (글자 겹침 방지)
+        const originalTransform = wrapper.style.transform;
+        wrapper.style.transform = 'none';
+
+        // 2. 캡처 실행
+        html2canvas(target, { 
+            backgroundColor: '#f4f5f6', 
+            scale: 2, 
+            useCORS: true 
+        }).then(canvas => {
+            // 3. 캡처 성공 후 transform 복구
+            wrapper.style.transform = originalTransform;
+
             const link = document.createElement('a');
             link.download = "기억의_조각.png";
             link.href = canvas.toDataURL('image/png');
             link.click();
+        }).catch(err => {
+            // 4. 에러 발생 시에도 복구
+            wrapper.style.transform = originalTransform;
+            console.error("캡처 실패:", err);
         });
     }
 
