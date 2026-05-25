@@ -436,57 +436,67 @@
     });
 
     function saveAsImage() {
-        const target = document.getElementById('captureTarget');
-        const originalTransform = target.style.transform;
-        
-        target.style.transform = 'scale(1)';
+    const target = document.getElementById('captureTarget');
+    if (!target) return; 
 
-        html2canvas(target, { 
-            backgroundColor: null, 
-            scale: 2, 
-            useCORS: true, 
-            allowTaint: false,
-onclone: (clonedDoc) => {
-    const clonedTarget = clonedDoc.getElementById('captureTarget');
-    const clonedBgLayer = clonedDoc.getElementById('bgLayer');
-    
-    clonedTarget.style.transform = 'none';
-    clonedTarget.style.position = 'absolute'; 
-    clonedTarget.style.top = '0';
-    clonedTarget.style.left = '0';
-    clonedTarget.style.margin = '0';
+    const originalTransform = target.style.transform;
+    target.style.transform = 'scale(1)';
 
-    clonedDoc.querySelectorAll('.mem-card-desc').forEach(desc => {
-        desc.style.display = 'block'; 
-        desc.style.webkitLineClamp = 'none';
-        desc.style.webkitBoxOrient = 'horizontal';
-        desc.style.maxHeight = '110px'; 
-        desc.style.overflow = 'hidden';
+    html2canvas(target, { 
+        backgroundColor: null, 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: false,
+        onclone: (clonedDoc) => {
+            try {
+                const clonedTarget = clonedDoc.getElementById('captureTarget');
+                const clonedBgLayer = clonedDoc.getElementById('bgLayer');
+                
+                if (clonedTarget) {
+                    clonedTarget.style.transform = 'none';
+                    clonedTarget.style.position = 'absolute'; 
+                    clonedTarget.style.top = '0';
+                    clonedTarget.style.left = '0';
+                    clonedTarget.style.margin = '0';
+                }
+
+                const descriptions = clonedDoc.querySelectorAll('.mem-card-desc');
+                descriptions.forEach(desc => {
+                    if (desc) {
+                        desc.style.display = 'block'; 
+                        desc.style.webkitLineClamp = 'none';
+                        desc.style.webkitBoxOrient = 'horizontal';
+                        desc.style.maxHeight = '110px'; 
+                        desc.style.overflow = 'hidden';
+                    }
+                });
+
+                if (bgLayer && clonedBgLayer) {
+                    clonedBgLayer.style.display = 'block';
+                    clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
+                    clonedBgLayer.style.backgroundSize = bgLayer.style.backgroundSize;
+                    clonedBgLayer.style.backgroundPosition = bgLayer.style.backgroundPosition;
+                    clonedBgLayer.style.backgroundRepeat = 'no-repeat';
+                    clonedBgLayer.style.opacity = bgLayer.style.opacity;
+                }
+            } catch (e) {
+                console.error("복제 과정에서 문제 발생:", e);
+            }
+        },
+        width: 600,
+        height: 450
+    }).then(canvas => {
+        target.style.transform = originalTransform;
+        const link = document.createElement('a');
+        link.download = `${document.getElementById('itemName1').value || '기억'}.png`;
+        link.href = canvas.toDataURL('image/png'); 
+        link.click();
+    }).catch(err => {
+        target.style.transform = originalTransform;
+        console.error("캡처 실패:", err);
+        alert("저장에 실패했습니다. 다시 시도해 주세요!");
     });
-
-    if (bgLayer && clonedBgLayer) {
-        clonedBgLayer.style.display = 'block';
-        clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
-        clonedBgLayer.style.backgroundSize = bgLayer.style.backgroundSize;
-        clonedBgLayer.style.backgroundPosition = bgLayer.style.backgroundPosition;
-        clonedBgLayer.style.backgroundRepeat = 'no-repeat';
-        clonedBgLayer.style.opacity = bgLayer.style.opacity;
-    }
-},
-            width: 600,
-            height: 450
-        }).then(canvas => {
-            target.style.transform = originalTransform;
-            const link = document.createElement('a');
-            link.download = `${document.getElementById('itemName1').value || '기억'}.png`;
-            link.href = canvas.toDataURL('image/png'); 
-            link.click();
-        }).catch(err => {
-            target.style.transform = originalTransform;
-            console.error("캡처 실패:", err);
-            alert("저장에 실패했습니다. 다시 시도해 주세요!");
-        });
-    }
+}
 
     function removeBgImage() {
         bgLayer.style.display = 'none'; 
