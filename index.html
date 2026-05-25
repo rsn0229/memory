@@ -28,8 +28,16 @@
         .result-area { flex: 2; min-width: 340px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--mem-border-color); display: flex; flex-direction: column; align-items: center; overflow: hidden; box-sizing: border-box; position: sticky; top: 20px; z-index: 10; }
         .result-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 2px solid var(--mem-border-color); }
         .result-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
-        .preview-container { width: 100%; height: 470px; display: grid; place-items: center; overflow: hidden; padding: 10px 0; box-sizing: border-box; }
-        #scaleWrapper { position: relative; width: 600px; height: 450px; }
+.preview-container {
+    width: 100%;
+    height: 470px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start;
+    overflow: hidden; 
+    padding: 10px 0;
+    box-sizing: border-box;
+}
         .controls-area { flex: 1; min-width: 320px; z-index: 5; }
         .maker-container { background: #ffffff; border: 1px solid var(--mem-border-color); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
         .maker-title { font-size: 1.3rem; font-weight: 700; margin-top: 0; margin-bottom: 20px; text-align: center; }
@@ -91,6 +99,12 @@
             .preview-container { height: auto; min-height: 240px; }
             .controls-area { width: 100%; margin-top: 5px; }
         }
+        #scaleWrapper {
+    position: relative;
+    width: 600px;
+    height: 450px;
+    transform-origin: top left;
+}
     </style>
 </head>
 <body>
