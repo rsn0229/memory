@@ -314,78 +314,92 @@
     </div>
 
 <script>
-    const bgLayer = document.getElementById('bgLayer');
-    const bgControlsPanel = document.getElementById('bgControlsPanel');
-
-    document.getElementById('bgImageInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { 
-                bgLayer.style.backgroundImage = `url("${ev.target.result}")`; 
-                bgLayer.style.display = 'block'; 
-                bgControlsPanel.style.display = 'flex'; 
-                updateBgStyle(); 
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    function updateBgStyle() {
-        if (!bgLayer) return;
-        
-        bgLayer.style.opacity = document.getElementById('bgOpacity').value;
-        const scale = document.getElementById('bgScale').value;
-        bgLayer.style.backgroundSize = `${scale * 100}%`; 
-        
-        const posX = document.getElementById('bgPosX').value;
-        const posY = document.getElementById('bgPosY').value;
-        bgLayer.style.backgroundPosition = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
-    }
-
-    ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
-        document.getElementById(id).addEventListener('input', updateBgStyle);
-    });
-
-    function saveAsImage() {
-        const target = document.getElementById('captureTarget');
-
-        html2canvas(target, { 
-            backgroundColor: null, 
-            scale: 2, 
-            useCORS: true,
-            onclone: (clonedDoc) => {
-                const clonedTarget = clonedDoc.getElementById('captureTarget');
-                const clonedBgLayer = clonedDoc.getElementById('bgLayer');
-                
-                clonedTarget.style.transform = 'none';
-                clonedTarget.style.position = 'relative'; 
-                clonedTarget.style.margin = '0';
-                
-                if (bgLayer.style.display === 'block') {
-                    clonedBgLayer.style.display = 'block';
-                    clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
-                    clonedBgLayer.style.backgroundSize = bgLayer.style.backgroundSize;
-                    clonedBgLayer.style.backgroundPosition = bgLayer.style.backgroundPosition;
-                    clonedBgLayer.style.opacity = bgLayer.style.opacity;
-                }
-            },
-            width: 600,
-            height: 450
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = `${document.getElementById('itemName').value || '기억'}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || 
+                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || 
+                (e.ctrlKey && e.keyCode === 85) || 
+                (e.ctrlKey && e.keyCode === 83)) { 
+                e.preventDefault();
+                return false;
+            }
         });
-    }
 
-    function removeBgImage() {
-        bgLayer.style.display = 'none'; 
-        bgLayer.style.backgroundImage = '';
-        document.getElementById('bgImageInput').value = ''; 
-        bgControlsPanel.style.display = 'none';
-    }
+        const bgLayer = document.getElementById('bgLayer');
+        const bgControlsPanel = document.getElementById('bgControlsPanel');
+
+        document.getElementById('bgImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { 
+                    bgLayer.style.backgroundImage = `url("${ev.target.result}")`; 
+                    bgLayer.style.display = 'block'; 
+                    bgControlsPanel.style.display = 'flex'; 
+                    updateBgStyle(); 
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateBgStyle() {
+            if (!bgLayer) return;
+            bgLayer.style.opacity = document.getElementById('bgOpacity').value;
+            const scale = document.getElementById('bgScale').value;
+            bgLayer.style.backgroundSize = `${scale * 100}%`; 
+            const posX = document.getElementById('bgPosX').value;
+            const posY = document.getElementById('bgPosY').value;
+            bgLayer.style.backgroundPosition = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
+        }
+
+        ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateBgStyle);
+        });
+
+        function saveAsImage() {
+            const target = document.getElementById('captureTarget');
+
+            html2canvas(target, { 
+                backgroundColor: null, 
+                scale: 2, 
+                useCORS: true,
+                allowTaint: true, 
+                onclone: (clonedDoc) => {
+                    const clonedTarget = clonedDoc.getElementById('captureTarget');
+                    const clonedBgLayer = clonedDoc.getElementById('bgLayer');
+
+                    clonedTarget.style.transform = 'none';
+                    clonedTarget.style.position = 'relative'; 
+                    clonedTarget.style.margin = '0';
+
+                    if (bgLayer.style.display === 'block') {
+                        clonedBgLayer.style.display = 'block';
+                        clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
+                        clonedBgLayer.style.opacity = bgLayer.style.opacity;
+                        clonedBgLayer.style.backgroundSize = bgLayer.style.backgroundSize;
+                        clonedBgLayer.style.backgroundPosition = bgLayer.style.backgroundPosition;
+                    }
+                },
+                width: 600,
+                height: 450
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${document.getElementById('itemName').value || '기억'}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error("캡처 실패:", err);
+                alert("이미지 저장 중 오류가 발생했습니다. 다시 시도해 주세요!");
+            });
+        }
+
+        function removeBgImage() {
+            bgLayer.style.display = 'none'; 
+            bgLayer.style.backgroundImage = '';
+            document.getElementById('bgImageInput').value = ''; 
+            bgControlsPanel.style.display = 'none';
+        }
+
         function resizePreview() {
             const container = document.getElementById('previewContainer');
             const scaleWrapper = document.getElementById('scaleWrapper');
@@ -398,8 +412,6 @@
             scaleWrapper.style.width = `${targetWidth * scale}px`;
             scaleWrapper.style.height = `${targetHeight * scale}px`;
         }
-        window.addEventListener('resize', resizePreview);
-        window.addEventListener('load', resizePreview);
 
         function updatePreviewText() {
             const title = document.getElementById('itemName').value;
@@ -410,60 +422,12 @@
             document.getElementById('previewCommission').innerText = document.getElementById('commissionInput').value;
         }
 
+        window.addEventListener('resize', resizePreview);
+        window.addEventListener('load', resizePreview);
+
         ['itemEmoji', 'itemName', 'itemDesc', 'itemIndex', 'commissionInput'].forEach(id => {
             document.getElementById(id).addEventListener('input', updatePreviewText);
         });
-
-const bgLayer = document.getElementById('bgLayer');
-const bgControlsPanel = document.getElementById('bgControlsPanel');
-
-document.getElementById('bgImageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => { 
-            bgLayer.style.backgroundImage = `url("${ev.target.result}")`; 
-            bgLayer.style.display = 'block'; 
-            bgControlsPanel.style.display = 'flex'; 
-            updateBgStyle(); 
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-function saveAsImage() {
-    const target = document.getElementById('captureTarget');
-
-    html2canvas(target, { 
-        backgroundColor: null, 
-        scale: 2, 
-        useCORS: true,
-        allowTaint: true, 
-        onclone: (clonedDoc) => {
-            const clonedTarget = clonedDoc.getElementById('captureTarget');
-            const clonedBgLayer = clonedDoc.getElementById('bgLayer');
-
-            clonedTarget.style.transform = 'none';
-            clonedTarget.style.position = 'relative'; 
-            clonedTarget.style.margin = '0';
-
-            if (bgLayer.style.display === 'block') {
-                clonedBgLayer.style.display = 'block';
-                clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
-            }
-        },
-        width: 600,
-        height: 450
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `${document.getElementById('itemName').value || '기억'}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }).catch(err => {
-        console.error("캡처 실패:", err);
-        alert("이미지 저장 중 오류가 발생했습니다. 다시 시도해 주세요!");
-    });
-}
     </script>
 </body>
 </html>
