@@ -464,7 +464,7 @@ onclone: (clonedDoc) => {
         desc.style.overflow = 'hidden';
     });
 
-    if (bgLayer.style.display === 'block') {
+    if (bgLayer && clonedBgLayer) {
         clonedBgLayer.style.display = 'block';
         clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
         clonedBgLayer.style.backgroundSize = bgLayer.style.backgroundSize;
