@@ -363,22 +363,22 @@
 
 function saveAsImage() {
     const target = document.getElementById('captureTarget');
-    const originalTransform = target.style.transform;
-    target.style.transform = 'none';
+
     html2canvas(target, { 
         backgroundColor: null, 
         scale: 2, 
         useCORS: true,
+        onclone: (clonedDoc) => {
+            const clonedTarget = clonedDoc.getElementById('captureTarget');
+            clonedTarget.style.transform = 'none';
+            clonedTarget.style.position = 'relative'; 
+            clonedTarget.style.top = '0';
+            clonedTarget.style.left = '0';
+            clonedTarget.style.margin = '0';
+        },
         width: 600,
-        height: 450, 
-        windowWidth: 600, 
-        windowHeight: 450, 
-        x: 0,            
-        y: 0,
-        scrollX: 0, 
-        scrollY: 0
+        height: 450
     }).then(canvas => {
-        target.style.transform = originalTransform;
         const link = document.createElement('a');
         link.download = `${document.getElementById('itemName').value || '기억'}.png`;
         link.href = canvas.toDataURL('image/png');
