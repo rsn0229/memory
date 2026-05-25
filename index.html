@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기억의 조각</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || // F12
+                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || 
+                (e.ctrlKey && e.keyCode === 85) || 
+                (e.ctrlKey && e.keyCode === 83)) { 
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --mem-modal-bg-grad-start: rgba(220, 228, 235, 0.7);
+            --mem-modal-bg-grad-end: rgba(245, 245, 245, 0.75);
+            --mem-modal-inner-bg: rgba(255, 255, 255, 0.65);
+            --mem-icon-bg: rgba(220, 228, 235, 0.85);
+            --mem-modal-text: #333333;
+            --mem-modal-subtext: #555555;
+            --mem-border-color: rgba(208, 208, 208, 0.8);
+            --bg-color: #f0f4f8;
+            --canvas-bg: #f4f5f6;
+        }
+
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--mem-modal-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .main-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .result-area {
+            flex: 2; 
+            min-width: 340px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--mem-border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+            position: sticky;
+            top: 20px;
+            z-index: 10;
+        }
+
+        .result-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--mem-border-color);
+        }
+
+        .result-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+
+        .preview-container {
+            width: 100%;
+            height: 470px;
+            display: grid;
+            place-items: center;
+            overflow: hidden; 
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        #scaleWrapper {
+            position: relative;
+            width: 600px;
+            height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .controls-area { flex: 1; min-width: 320px; z-index: 5; }
+
+        .maker-container {
+            background: #ffffff;
+            border: 1px solid var(--mem-border-color);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .maker-title { font-size: 1.3rem; font-weight: 700; margin-top: 0; margin-bottom: 20px; text-align: center; }
+
+        .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+
+        .input-group label { font-size: 0.95rem; font-weight: 700; margin-bottom: 5px; color: var(--mem-modal-subtext); }
+        
+        .input-help { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+
+        .input-group input[type="text"], .input-group textarea {
+            padding: 10px; border: 1px solid var(--mem-border-color); background: var(--bg-color);
+            color: var(--mem-modal-text); font-family: 'Gowun Dodum', sans-serif;
+            border-radius: 6px; outline: none; font-size: 0.95rem;
+        }
+
+        .input-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+        .file-input-wrapper { display: flex; align-items: center; gap: 10px; width: 100%; }
+
+        .file-input-wrapper input[type="file"] { flex: 1; min-width: 0; font-family: 'Gowun Dodum', sans-serif; font-size: 0.85rem; }
+
+        .clear-btn {
+            flex-shrink: 0; background: #e2e8f0; border: none; padding: 6px 10px;
+            border-radius: 4px; cursor: pointer; font-family: 'Gowun Dodum', sans-serif;
+            font-size: 0.8rem; white-space: nowrap; word-break: keep-all;
+        }
+
+        .clear-btn:hover { background: #cbd5e0; }
+
+        #bgControlsPanel {
+            display: none; background: #f9f9f9; padding: 12px; border-radius: 8px;
+            border: 1px solid #eee; margin-top: 10px; gap: 10px; flex-direction: column;
+        }
+
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        
+        .slider-row label { font-size: 0.8rem; width: 70px; margin: 0; }
+
+        .slider-row input[type="range"] { flex: 1; cursor: pointer; }
+
+        .capture-wrapper {
+            width: 600px; height: 450px; background-color: var(--canvas-bg); 
+            display: flex; justify-content: center; align-items: center; position: absolute;
+            box-sizing: border-box; overflow: hidden; border-radius: 4px; transform-origin: center center;
+        }
+
+        #bgLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; display: none; }
+
+        #bgLayer img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: 50% 50%; transform-origin: center center;
+            opacity: 0.4; pointer-events: none;
+        }
+
+        .canvas-credit {
+            position: absolute; bottom: 14px; right: 16px; z-index: 2; text-align: right; color: #ffffff;
+            font-family: 'Pretendard', sans-serif; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;
+            pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 2px rgba(0,0,0,0.3);
+        }
+        
+        .commission-credit { font-size: 0.75rem; }
+
+        .mem-card {
+            background: linear-gradient(to bottom, var(--mem-modal-bg-grad-start) 0%, var(--mem-modal-bg-grad-end) 100%);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            width: 250px; min-height: 350px; position: relative; z-index: 1; display: flex; 
+            flex-direction: column; padding: 42px 10px 10px 10px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25), 0 5px 10px rgba(0,0,0,0.1);
+            box-sizing: border-box; font-family: 'Pretendard', sans-serif;
+        }
+
+        .mem-card-header { position: absolute; top: 0; left: 0; width: 100%; height: 42px; display: flex; align-items: center; justify-content: flex-start; padding-left: 12px; box-sizing: border-box; }
+
+        .mem-card-title {
+            color: var(--mem-modal-text); font-size: 1.15rem; font-weight: 500; 
+            letter-spacing: -0.8px; transform: scaleX(0.95); transform-origin: left center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%;
+        }
+
+        .mem-card-inner { background-color: var(--mem-modal-inner-bg); flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px 15px 15px 15px; }
+
+        .mem-icon-box { width: 70px; height: 70px; background-color: var(--mem-icon-bg); display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+
+        .mem-card-icon { font-size: 3.5rem; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15)); font-family: 'Noto Color Emoji', sans-serif; line-height: 1; }
+
+        .mem-card-desc {
+            font-size: 1.05rem; color: var(--mem-modal-text); line-height: 1.6; font-weight: 400; 
+            letter-spacing: -0.3px; transform: scaleX(0.96); word-break: keep-all; transform-origin: top center; text-align: center; margin-bottom: 15px; 
+        }
+
+        .mem-counter-box {
+            margin-top: auto; background-color: var(--mem-icon-bg); color: var(--mem-modal-subtext); 
+            padding: 4px 12px; font-size: 0.95rem; font-weight: 400; letter-spacing: -0.5px; transform: scaleX(0.95); 
+        }
+
+        .download-btn {
+            padding: 8px 16px; background-color: #888888; color: white; border: none;
+            border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-family: 'Gowun Dodum', sans-serif;
+            transition: background-color 0.2s;
+        }
+        .download-btn:hover { background-color: #666666; }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .result-area { position: sticky; top: 0; padding: 10px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: -10px -10px 10px -10px; width: calc(100% + 20px); }
+            .preview-container { height: auto; min-height: 240px; }
+            .controls-area { width: 100%; margin-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout">
+        <div class="result-area">
+            <div class="result-header">
+                <h3>실시간 미리보기</h3>
+                <button class="download-btn" onclick="saveAsImage()">이미지 저장</button>
+            </div>
+            
+            <div class="preview-container" id="previewContainer">
+                <div id="scaleWrapper">
+                    <div class="capture-wrapper" id="captureTarget">
+                        <div id="bgLayer"><img id="bgImg" src="" alt="배경"></div>
+                        <div class="canvas-credit">
+                            <div>@229x812</div>
+                            <div id="previewCommission" class="commission-credit"></div>
+                        </div>
+                        <div class="mem-card">
+                            <div class="mem-card-header"><span class="mem-card-title" id="previewTitle">◇ 손때 묻은 사르디나 지도</span></div>
+                            <div class="mem-card-inner">
+                                <div class="mem-icon-box"><span class="mem-card-icon" id="previewIcon">🗺️</span></div>
+                                <div class="mem-card-desc" id="previewDesc">산책 삼아 거닐던 해변가, 노을이 예쁜 언덕, 자주 가는 단골 바 등... 두 사람이 나란히 거닐었던 장소마다 짧은 메모가 남아 있다.</div>
+                                <div class="mem-counter-box" id="previewIndex">1 / ? 번째 기억</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-area">
+            <div class="maker-container">
+                <h2 class="maker-title">기억의 조각 만들기</h2>
+                <form id="itemForm" onsubmit="event.preventDefault();">
+                    <div class="input-group">
+                        <label for="bgImageInput">배경 이미지 (선택)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="bgImageInput" accept="image/*">
+                            <button type="button" class="clear-btn" onclick="removeBgImage()">지우기</button>
+                        </div>
+                        <div id="bgControlsPanel">
+                            <div class="slider-row"><label>투명도</label><input type="range" id="bgOpacity" min="0" max="1" step="0.05" value="0.4"></div>
+                            <div class="slider-row"><label>크기 확대</label><input type="range" id="bgScale" min="1" max="5" step="0.1" value="1"></div>
+                            <div class="slider-row"><label>좌우 범위</label><input type="range" id="bgPosX" min="-600" max="600" value="0"></div>
+                            <div class="slider-row"><label>상하 범위</label><input type="range" id="bgPosY" min="-450" max="450" value="0"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="commissionInput">배경 이미지 출처</label>
+                        <div class="input-help">커미션 출처를 적으면 아이디 아래에 표기됩니다. (공란 가능)</div>
+                        <input type="text" id="commissionInput" placeholder="예: Commission by. 000">
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                    <div class="input-group">
+                        <label for="itemEmoji">아이템 이모지</label>
+                        <div class="input-help">윈도우키 + 마침표(.)를 눌러 이모지를 추가하세요.</div>
+                        <input type="text" id="itemEmoji" value="🗺️">
+                    </div>
+                    <div class="input-group">
+                        <label for="itemName">아이템 이름</label>
+                        <input type="text" id="itemName" value="손때 묻은 사르디나 지도">
+                    </div>
+                    <div class="input-group">
+                        <label for="itemDesc">아이템 설명</label>
+                        <textarea id="itemDesc">산책 삼아 거닐던 해변가, 노을이 예쁜 언덕, 자주 가는 단골 바 등... 두 사람이 나란히 거닐었던 장소마다 짧은 메모가 남아 있다.</textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="itemIndex">몇 번째 기억인가요?</label>
+                        <input type="text" id="itemIndex" value="1 / ?">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function resizePreview() {
+            const container = document.getElementById('previewContainer');
+            const scaleWrapper = document.getElementById('scaleWrapper');
+            const target = document.getElementById('captureTarget');
+            const containerWidth = container.clientWidth;
+            const targetWidth = 600;
+            const targetHeight = 450;
+            let scale = Math.min(1, containerWidth / targetWidth);
+            target.style.transform = `scale(${scale})`;
+            scaleWrapper.style.width = `${targetWidth * scale}px`;
+            scaleWrapper.style.height = `${targetHeight * scale}px`;
+        }
+        window.addEventListener('resize', resizePreview);
+        window.addEventListener('load', resizePreview);
+
+        function updatePreviewText() {
+            const title = document.getElementById('itemName').value;
+            document.getElementById('previewTitle').innerText = title.startsWith('◇') ? title : `◇ ${title}`;
+            document.getElementById('previewIcon').innerText = document.getElementById('itemEmoji').value;
+            document.getElementById('previewDesc').innerHTML = document.getElementById('itemDesc').value.replace(/\n/g, '<br>');
+            document.getElementById('previewIndex').innerText = `${document.getElementById('itemIndex').value} 번째 기억`;
+            document.getElementById('previewCommission').innerText = document.getElementById('commissionInput').value;
+        }
+
+        ['itemEmoji', 'itemName', 'itemDesc', 'itemIndex', 'commissionInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updatePreviewText);
+        });
+
+        const bgImg = document.getElementById('bgImg');
+        const bgLayer = document.getElementById('bgLayer');
+        const bgControlsPanel = document.getElementById('bgControlsPanel');
+
+        document.getElementById('bgImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { bgImg.src = ev.target.result; bgLayer.style.display = 'block'; bgControlsPanel.style.display = 'flex'; updateBgStyle(); };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removeBgImage() {
+            bgLayer.style.display = 'none'; bgImg.src = ''; document.getElementById('bgImageInput').value = ''; bgControlsPanel.style.display = 'none';
+        }
+
+        function updateBgStyle() {
+            bgImg.style.opacity = document.getElementById('bgOpacity').value;
+            bgImg.style.transform = `scale(${document.getElementById('bgScale').value})`;
+            bgImg.style.objectPosition = `calc(50% + ${document.getElementById('bgPosX').value}px) calc(50% + ${document.getElementById('bgPosY').value}px)`;
+        }
+
+        ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateBgStyle);
+        });
+
+        function saveAsImage() {
+            html2canvas(document.getElementById('captureTarget'), { backgroundColor: null, scale: 2, useCORS: true })
+            .then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${document.getElementById('itemName').value || '기억'}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
