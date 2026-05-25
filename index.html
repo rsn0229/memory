@@ -355,12 +355,11 @@
 
         function saveAsImage() {
             const target = document.getElementById('captureTarget');
-
             html2canvas(target, { 
                 backgroundColor: null, 
                 scale: 2, 
-                useCORS: true,
-                allowTaint: true, 
+                useCORS: true, 
+                allowTaint: false,  
                 onclone: (clonedDoc) => {
                     const clonedTarget = clonedDoc.getElementById('captureTarget');
                     const clonedBgLayer = clonedDoc.getElementById('bgLayer');
@@ -382,11 +381,11 @@
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `${document.getElementById('itemName').value || '기억'}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.href = canvas.toDataURL('image/png'); 
                 link.click();
             }).catch(err => {
                 console.error("캡처 실패:", err);
-                alert("이미지 저장 중 오류가 발생했습니다.");
+                alert("저장에 실패했습니다. 이미지가 너무 크지 않은지 확인해 보세요!");
             });
         }
 
