@@ -342,16 +342,15 @@
             document.getElementById(id).addEventListener('input', updatePreviewText);
         });
 
-        const bgImg = document.getElementById('bgImg');
-        const bgLayer = document.getElementById('bgLayer');
-        const bgControlsPanel = document.getElementById('bgControlsPanel');
+const bgLayer = document.getElementById('bgLayer');
+const bgControlsPanel = document.getElementById('bgControlsPanel');
 
 document.getElementById('bgImageInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (ev) => { 
-            bgLayer.style.backgroundImage = `url('${ev.target.result}')`; 
+            bgLayer.style.backgroundImage = `url("${ev.target.result}")`; 
             bgLayer.style.display = 'block'; 
             bgControlsPanel.style.display = 'flex'; 
             updateBgStyle(); 
@@ -360,27 +359,6 @@ document.getElementById('bgImageInput').addEventListener('change', function(e) {
     }
 });
 
-function removeBgImage() {
-    bgLayer.style.display = 'none'; 
-    bgLayer.style.backgroundImage = '';
-    document.getElementById('bgImageInput').value = ''; 
-    bgControlsPanel.style.display = 'none';
-}
-
-function updateBgStyle() {
-    bgLayer.style.opacity = document.getElementById('bgOpacity').value;
-    const scale = document.getElementById('bgScale').value;
-    bgLayer.style.backgroundSize = `${scale * 100}%`; 
-    
-    const posX = document.getElementById('bgPosX').value;
-    const posY = document.getElementById('bgPosY').value;
-    bgLayer.style.backgroundPosition = `calc(50% + ${posX}px) calc(50% + ${posY}px)`;
-}
-
-        ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
-            document.getElementById(id).addEventListener('input', updateBgStyle);
-        });
-
 function saveAsImage() {
     const target = document.getElementById('captureTarget');
 
@@ -388,13 +366,19 @@ function saveAsImage() {
         backgroundColor: null, 
         scale: 2, 
         useCORS: true,
+        allowTaint: true, 
         onclone: (clonedDoc) => {
             const clonedTarget = clonedDoc.getElementById('captureTarget');
+            const clonedBgLayer = clonedDoc.getElementById('bgLayer');
+
             clonedTarget.style.transform = 'none';
             clonedTarget.style.position = 'relative'; 
-            clonedTarget.style.top = '0';
-            clonedTarget.style.left = '0';
             clonedTarget.style.margin = '0';
+
+            if (bgLayer.style.display === 'block') {
+                clonedBgLayer.style.display = 'block';
+                clonedBgLayer.style.backgroundImage = bgLayer.style.backgroundImage;
+            }
         },
         width: 600,
         height: 450
@@ -403,6 +387,9 @@ function saveAsImage() {
         link.download = `${document.getElementById('itemName').value || '기억'}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+    }).catch(err => {
+        console.error("캡처 실패:", err);
+        alert("이미지 저장 중 오류가 발생했습니다. 다시 시도해 주세요!");
     });
 }
     </script>
