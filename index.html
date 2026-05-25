@@ -316,10 +316,7 @@
 <script>
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => {
-            if (e.keyCode === 123 || 
-                (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || 
-                (e.ctrlKey && e.keyCode === 85) || 
-                (e.ctrlKey && e.keyCode === 83)) { 
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83)) { 
                 e.preventDefault();
                 return false;
             }
@@ -389,7 +386,7 @@
                 link.click();
             }).catch(err => {
                 console.error("캡처 실패:", err);
-                alert("이미지 저장 중 오류가 발생했습니다. 다시 시도해 주세요!");
+                alert("이미지 저장 중 오류가 발생했습니다.");
             });
         }
 
