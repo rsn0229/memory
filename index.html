@@ -448,70 +448,90 @@
         console.log(`적용됨: scale=${scale}, x=${posX}, y=${posY}`); // 이제 이게 콘솔에 뜹니다!
     }
 
-    // [저장 함수]
-    function saveAsImage() {
-        const target = document.getElementById('captureTarget');
-        if (!target) return;
-        
-        // 캡처 전, 임시로 transform을 초기화하여 캡처 범위를 정확히 잡습니다.
-        const originalTransform = target.style.transform;
-        target.style.transform = 'scale(1)';
+// [저장 함수 수정] - 캡처 시 레이아웃 오차를 제거합니다.
+function saveAsImage() {
+    const target = document.getElementById('captureTarget');
+    if (!target) return;
 
-        html2canvas(target, { 
-            backgroundColor: null, 
-            scale: 2, 
-            useCORS: true, 
-            allowTaint: false,
-            // 💡 여기서 클론을 세밀하게 제어합니다
-            onclone: (clonedDoc) => {
-                const clonedBgImg = clonedDoc.getElementById('bgImg');
-                const originalBgImg = document.getElementById('bgImg');
-                const clonedBgLayer = clonedDoc.getElementById('bgLayer');
-                
-                if (clonedBgImg && originalBgImg) {
-                    // 1. 이미지가 정상적으로 보이도록 강제 설정
-                    clonedBgImg.src = originalBgImg.src;
-                    clonedBgImg.style.display = 'block';
-                    clonedBgImg.style.opacity = originalBgImg.style.opacity;
-                    clonedBgImg.style.transform = originalBgImg.style.transform;
-                    clonedBgImg.style.objectFit = 'cover';
-                    
-                    // 2. 부모 레이어도 강제 표시
-                    if(clonedBgLayer) {
-                        clonedBgLayer.style.display = 'block';
-                    }
-                }
-            }
-        }).then(canvas => {
-            // 캡처 후 원상복구
-            target.style.transform = originalTransform;
+    // 1. 캡처 전, 스타일을 강제로 1:1로 고정하여 왜곡 방지
+    const originalTransform = target.style.transform;
+    const originalPosition = target.style.position;
+    const originalTop = target.style.top;
+    const originalLeft = target.style.left;
+
+    target.style.transform = 'scale(1)';
+    target.style.position = 'relative'; // 절대 위치에서 해제하여 레이아웃 밀림 방지
+    target.style.top = '0';
+    target.style.left = '0';
+
+    html2canvas(target, { 
+        backgroundColor: null, 
+        scale: 2,           // 화질 선명하게 유지
+        useCORS: true, 
+        allowTaint: false,
+        width: 600,         // 캔버스 크기 명시
+        height: 450,
+        onclone: (clonedDoc) => {
+            const clonedBgImg = clonedDoc.getElementById('bgImg');
+            const originalBgImg = document.getElementById('bgImg');
+            const clonedBgLayer = clonedDoc.getElementById('bgLayer');
             
-            const link = document.createElement('a');
-            link.download = "기억의_조각.png";
-            link.href = canvas.toDataURL('image/png'); 
-            link.click();
-        }).catch(err => {
-            target.style.transform = originalTransform;
-            console.error("캡처 실패:", err);
-            alert("저장 실패! 다시 시도해주세요.");
-        });
-    }
-
+            if (clonedBgImg && originalBgImg) {
+                clonedBgImg.src = originalBgImg.src;
+                clonedBgImg.style.display = 'block';
+                clonedBgImg.style.opacity = originalBgImg.style.opacity;
+                clonedBgImg.style.transform = originalBgImg.style.transform;
+            }
+            if(clonedBgLayer) {
+                clonedBgLayer.style.display = 'block';
+            }
+        }
+    }).then(canvas => {
+        // 2. 캡처 후 원래 스타일로 복구
+        target.style.transform = originalTransform;
+        target.style.position = originalPosition;
+        target.style.top = originalTop;
+        target.style.left = originalLeft;
+        
+        const link = document.createElement('a');
+        link.download = "기억의_조각.png";
+        link.href = canvas.toDataURL('image/png'); 
+        link.click();
+    }).catch(err => {
+        target.style.transform = originalTransform;
+        console.error("캡처 실패:", err);
+        alert("저장 실패! 다시 시도해주세요.");
+    });
+}
+    
     function removeBgImage() {
         document.getElementById('bgLayer').style.display = 'none';
         document.getElementById('bgImg').src = '';
         document.getElementById('bgControlsPanel').style.display = 'none';
     }
 
-    function resizePreview() {
-        const container = document.getElementById('previewContainer');
-        const scaleWrapper = document.getElementById('scaleWrapper');
-        const target = document.getElementById('captureTarget');
-        const scale = Math.min(1, container.clientWidth / 600);
-        target.style.transform = `scale(${scale})`;
-        scaleWrapper.style.width = `${600 * scale}px`;
-        scaleWrapper.style.height = `${450 * scale}px`;
-    }
+// [리사이즈 함수 수정] - 뷰포트에 따라 적절하게 조절
+function resizePreview() {
+    const container = document.getElementById('previewContainer');
+    const scaleWrapper = document.getElementById('scaleWrapper');
+    const target = document.getElementById('captureTarget');
+    
+    // 부모 컨테이너 크기 확인
+    const containerWidth = container.clientWidth;
+    const targetWidth = 600;
+    const targetHeight = 450;
+    
+    // 비율 계산 (0.x배로 스케일링)
+    let scale = Math.min(1, containerWidth / targetWidth);
+    
+    // 이제 target 자체를 움직이지 않고 scaleWrapper로 스케일 조절을 분리합니다.
+    scaleWrapper.style.transform = `scale(${scale})`;
+    scaleWrapper.style.width = `${targetWidth}px`;
+    scaleWrapper.style.height = `${targetHeight}px`;
+    
+    // 부모(previewContainer)도 크기에 맞게 조절
+    container.style.height = `${targetHeight * scale}px`;
+}
 
     function updatePreviewText() {
         ['1', '2'].forEach(num => {
