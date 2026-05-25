@@ -382,25 +382,34 @@
     </div>
 
 <script>
-    // 페이지가 완전히 로딩되면 실행하라!
-    window.addEventListener('DOMContentLoaded', () => {
+    // 1. 모든 것이 준비된 후 실행되도록 "한 번에" 묶었습니다.
+    document.addEventListener('DOMContentLoaded', () => {
         const bgLayer = document.getElementById('bgLayer');
-        const bgControlsPanel = document.getElementById('bgControlsPanel');
         const bgImg = document.getElementById('bgImg');
+        const bgControlsPanel = document.getElementById('bgControlsPanel');
+        const bgImageInput = document.getElementById('bgImageInput');
 
-        // [이벤트 연결] 슬라이더와 함수를 확실하게 연결
+        // [슬라이더 연결] - input과 change 이벤트를 둘 다 걸어 확실하게 반응하게 합니다.
         ['bgOpacity', 'bgScale', 'bgPosX', 'bgPosY'].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.addEventListener('input', () => {
-                    console.log(`슬라이더 ${id} 감지됨!`); // 💡 이제 콘솔에 이게 떠야 합니다!
-                    updateBgStyle();
+                ['input', 'change'].forEach(evt => {
+                    el.addEventListener(evt, updateBgStyle);
                 });
             }
         });
 
+        // [2인 모드 토글]
+        document.querySelectorAll('input[name="personMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const isTwo = this.value === '2';
+                document.getElementById('card2').style.display = isTwo ? 'flex' : 'none';
+                document.getElementById('person2Controls').style.display = isTwo ? 'block' : 'none';
+            });
+        });
+
         // [이미지 업로드]
-        document.getElementById('bgImageInput').addEventListener('change', function(e) {
+        bgImageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -413,27 +422,37 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // [텍스트 업데이트]
+        document.getElementById('commissionInput').addEventListener('input', updatePreviewText);
+        ['1', '2'].forEach(num => {
+            ['itemEmoji', 'itemName', 'itemDesc', 'itemIndex'].forEach(id => {
+                const el = document.getElementById(`${id}${num}`);
+                if (el) el.addEventListener('input', updatePreviewText);
+            });
+        });
     });
 
-    // 배경 스타일 업데이트 함수
+    // [스타일 업데이트 함수]
     function updateBgStyle() {
         const bgImg = document.getElementById('bgImg');
-        const bgLayer = document.getElementById('bgLayer');
         if (!bgImg) return;
-
-        bgLayer.style.backgroundImage = 'none'; 
-        bgImg.style.opacity = document.getElementById('bgOpacity').value;
+        
         const scale = document.getElementById('bgScale').value;
         const posX = document.getElementById('bgPosX').value;
         const posY = document.getElementById('bgPosY').value;
-        
+        const opacity = document.getElementById('bgOpacity').value;
+
+        bgImg.style.opacity = opacity;
         bgImg.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
+        console.log(`적용됨: scale=${scale}, x=${posX}, y=${posY}`); // 이제 이게 콘솔에 뜹니다!
     }
 
-    // [나머지 필수 기능들]
+    // [저장 함수]
     function saveAsImage() {
         const target = document.getElementById('captureTarget');
         if (!target) return;
+
         const originalTransform = target.style.transform;
         target.style.transform = 'scale(1)';
 
@@ -445,6 +464,9 @@
             onclone: (clonedDoc) => {
                 const clonedBgImg = clonedDoc.getElementById('bgImg');
                 const originalBgImg = document.getElementById('bgImg');
+                
+                clonedDoc.getElementById('captureTarget').style.transform = 'none';
+                
                 if (clonedBgImg && originalBgImg) {
                     clonedBgImg.src = originalBgImg.src;
                     clonedBgImg.style.display = 'block';
@@ -476,35 +498,32 @@
         const container = document.getElementById('previewContainer');
         const scaleWrapper = document.getElementById('scaleWrapper');
         const target = document.getElementById('captureTarget');
-        const containerWidth = container.clientWidth;
-        const targetWidth = 600;
-        const targetHeight = 450;
-        let scale = Math.min(1, containerWidth / targetWidth);
+        const scale = Math.min(1, container.clientWidth / 600);
         target.style.transform = `scale(${scale})`;
-        scaleWrapper.style.width = `${targetWidth * scale}px`;
-        scaleWrapper.style.height = `${targetHeight * scale}px`;
+        scaleWrapper.style.width = `${600 * scale}px`;
+        scaleWrapper.style.height = `${450 * scale}px`;
     }
 
     function updatePreviewText() {
         ['1', '2'].forEach(num => {
             const title = document.getElementById(`itemName${num}`).value;
-            document.getElementById(`previewTitle${num}`).innerText = title.startsWith('◇') ? title : `◇ ${title}`;
-            document.getElementById(`previewIcon${num}`).innerText = document.getElementById(`itemEmoji${num}`).value;
-            document.getElementById(`previewDesc${num}`).innerHTML = document.getElementById(`itemDesc${num}`).value.replace(/\n/g, '<br>');
-            document.getElementById(`previewIndex${num}`).innerText = document.getElementById(`itemIndex${num}`).value ? `${document.getElementById(`itemIndex${num}`).value}의 기억` : "???의 기억";
+            const targetTitle = document.getElementById(`previewTitle${num}`);
+            if (targetTitle) targetTitle.innerText = title.startsWith('◇') ? title : `◇ ${title}`;
+            
+            const icon = document.getElementById(`previewIcon${num}`);
+            if (icon) icon.innerText = document.getElementById(`itemEmoji${num}`).value;
+            
+            const desc = document.getElementById(`previewDesc${num}`);
+            if (desc) desc.innerHTML = document.getElementById(`itemDesc${num}`).value.replace(/\n/g, '<br>');
+            
+            const index = document.getElementById(`previewIndex${num}`);
+            if (index) index.innerText = document.getElementById(`itemIndex${num}`).value ? `${document.getElementById(`itemIndex${num}`).value}의 기억` : "???의 기억";
         });
         document.getElementById('previewCommission').innerText = document.getElementById('commissionInput').value;
     }
 
     window.addEventListener('resize', resizePreview);
     window.addEventListener('load', resizePreview);
-
-    document.getElementById('commissionInput').addEventListener('input', updatePreviewText);
-    ['1', '2'].forEach(num => {
-        ['itemEmoji', 'itemName', 'itemDesc', 'itemIndex'].forEach(id => {
-            document.getElementById(`${id}${num}`).addEventListener('input', updatePreviewText);
-        });
-    });
 </script>
 </body>
 </html>
