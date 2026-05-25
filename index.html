@@ -424,22 +424,25 @@ document.getElementById('bgImageInput').addEventListener('change', function(e) {
     }
 });
 
+// [1] 수정된 updateBgStyle: 실시간 반영 로그 추가 및 안정화
 function updateBgStyle() {
     const bgImg = document.getElementById('bgImg');
     const bgLayer = document.getElementById('bgLayer');
     if (!bgImg) return;
     
-    bgLayer.style.backgroundImage = 'none'; 
-
-    bgImg.style.opacity = document.getElementById('bgOpacity').value;
-
+    // 💡 디버깅용: 슬라이더 움직일 때마다 콘솔에 찍힘. (F12 콘솔 확인!)
     const scale = document.getElementById('bgScale').value;
     const posX = document.getElementById('bgPosX').value;
     const posY = document.getElementById('bgPosY').value;
-    
+    const opacity = document.getElementById('bgOpacity').value;
+    console.log(`반영 중: scale=${scale}, x=${posX}, y=${posY}`); 
+
+    bgImg.style.opacity = opacity;
     bgImg.style.transform = `scale(${scale}) translate(${posX}px, ${posY}px)`;
+    bgLayer.style.display = 'block'; 
 }
 
+// [2] 수정된 saveAsImage: 가장 안전하게 속성을 복제합니다 (cssText 삭제)
 function saveAsImage() {
     const target = document.getElementById('captureTarget');
     if (!target) return;
@@ -453,30 +456,16 @@ function saveAsImage() {
         useCORS: true, 
         allowTaint: false,
         onclone: (clonedDoc) => {
-            const clonedTarget = clonedDoc.getElementById('captureTarget');
             const clonedBgImg = clonedDoc.getElementById('bgImg');
             const originalBgImg = document.getElementById('bgImg');
             
-            if (clonedTarget) {
-                clonedTarget.style.transform = 'none';
-                clonedTarget.style.position = 'absolute';
-                clonedTarget.style.top = '0';
-                clonedTarget.style.left = '0';
-            }
-
-            clonedDoc.querySelectorAll('.mem-card-desc').forEach(desc => {
-                desc.style.display = 'block'; 
-                desc.style.webkitLineClamp = 'none';
-                desc.style.webkitBoxOrient = 'horizontal';
-                desc.style.maxHeight = '110px'; 
-            });
-
+            // 필수 속성만 명시적으로 복제 (절대 cssText 쓰지 않음!)
             if (clonedBgImg && originalBgImg) {
-                clonedBgImg.src = originalBgImg.src; 
+                clonedBgImg.src = originalBgImg.src;
                 clonedBgImg.style.display = 'block';
                 clonedBgImg.style.opacity = originalBgImg.style.opacity;
-                clonedBgImg.style.transform = originalBgImg.style.transform; 
-                clonedBgImg.style.objectFit = 'cover'; 
+                clonedBgImg.style.transform = originalBgImg.style.transform; // 실시간 이동 값 복제!
+                clonedBgImg.style.objectFit = 'cover';
             }
         },
         width: 600,
@@ -490,7 +479,7 @@ function saveAsImage() {
     }).catch(err => {
         target.style.transform = originalTransform;
         console.error("캡처 실패:", err);
-        alert("저장에 실패했습니다. 로컬 서버(Live Server)를 사용 중인지 확인해 주세요!");
+        alert("저장에 실패했습니다!");
     });
 }
 
