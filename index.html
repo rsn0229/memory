@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>기억의 조각</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -25,40 +25,41 @@
 
         body { font-family: 'Gowun Dodum', sans-serif; background-color: var(--bg-color); color: var(--mem-modal-text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; user-select: none; }
         .main-layout { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1100px; width: 100%; align-items: flex-start; justify-content: center; }
-        .result-area { flex: 2; min-width: 340px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--mem-border-color); display: flex; flex-direction: column; align-items: center; overflow: hidden; box-sizing: border-box; position: sticky; top: 20px; z-index: 10; }
+        
+        .result-area { flex: 2; min-width: 340px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--mem-border-color); display: flex; flex-direction: column; align-items: center; overflow: hidden; box-sizing: border-box; position: sticky; top: 20px; z-index: 10; transition: height 0.3s ease; }
         .result-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; margin-bottom: 10px; border-bottom: 2px solid var(--mem-border-color); }
         .result-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; }
-.preview-container {
-    width: 100%;
-    height: 470px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: flex-start;
-    overflow: hidden; 
-    padding: 10px 0;
-    box-sizing: border-box;
-}
+        
+        .preview-container { width: 100%; height: 470px; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; padding: 10px 0; box-sizing: border-box; }
+        
+        .toggle-btn { background: #333; color: #fff; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+
         .controls-area { flex: 1; min-width: 320px; z-index: 5; }
         .maker-container { background: #ffffff; border: 1px solid var(--mem-border-color); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
         .maker-title { font-size: 1.3rem; font-weight: 700; margin-top: 0; margin-bottom: 20px; text-align: center; }
+        
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
         .mode-toggle input[type="radio"] { display: none; }
         .mode-toggle label { padding: 8px 16px; border: 1px solid var(--mem-border-color); border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; font-weight: 600; color: var(--mem-modal-subtext); background: #fff; }
         .mode-toggle input[type="radio"]:checked + label { background-color: var(--mem-modal-text); color: #fff; border-color: var(--mem-modal-text); }
+        
         .section-title { font-size: 1.05rem; font-weight: 700; color: var(--mem-modal-text); margin: 25px 0 15px 0; padding-bottom: 8px; border-bottom: 2px dashed #eee; }
         .input-group { display: flex; flex-direction: column; margin-bottom: 15px; }
         .input-group label { font-size: 0.95rem; font-weight: 700; margin-bottom: 5px; color: var(--mem-modal-subtext); }
         .input-group input[type="text"], .input-group textarea { padding: 10px; border: 1px solid var(--mem-border-color); background: var(--bg-color); color: var(--mem-modal-text); font-family: 'Gowun Dodum', sans-serif; border-radius: 6px; outline: none; font-size: 0.95rem; }
         .input-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
         .input-help { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        
         .file-input-wrapper { display: flex; align-items: center; gap: 10px; width: 100%; }
         .file-input-wrapper input[type="file"] { flex: 1; min-width: 0; font-family: 'Gowun Dodum', sans-serif; font-size: 0.85rem; }
         .clear-btn { flex-shrink: 0; background: #e2e8f0; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: 'Gowun Dodum', sans-serif; font-size: 0.8rem; }
         .clear-btn:hover { background: #cbd5e0; }
-        #bgOpacityPanel { display: none; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; gap: 10px; flex-direction: column; }
+        
+        #bgOpacityPanel, #bgZoomPanel { display: none; background: #f9f9f9; padding: 12px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; gap: 10px; flex-direction: column; }
         .slider-row { display: flex; align-items: center; gap: 10px; }
         .slider-row label { font-size: 0.8rem; width: 70px; margin: 0; }
         .slider-row input[type="range"] { flex: 1; cursor: pointer; }
+        
         .capture-wrapper { width: 600px; height: 450px; background-color: var(--canvas-bg); display: flex; justify-content: center; align-items: center; position: absolute; top: 0; left: 0; box-sizing: border-box; overflow: hidden; border-radius: 4px; transform-origin: top left; }
         #bgLayer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; background-size: cover; background-position: 50% 50%; background-repeat: no-repeat; opacity: 1; pointer-events: none; }
         #bgImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1; pointer-events: none; }
@@ -68,14 +69,7 @@
         #cardsContainer { display: flex; gap: 30px; justify-content: center; align-items: stretch; z-index: 1; width: 100%; }
         .card-container { position: relative; width: 210px; min-height: 310px; }
         
-        .hard-shadow-layer {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.2);
-        }
+        .hard-shadow-layer { position: absolute; top: 8px; left: 8px; width: 100%; height: 100%; background-color: rgba(0,0,0,0.2); }
         
         .mem-card { background: linear-gradient(to bottom, var(--mem-modal-bg-grad-start) 0%, var(--mem-modal-bg-grad-end) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); width: 210px; min-height: 310px; position: relative; z-index: 1; display: flex; flex-direction: column; padding: 38px 10px 10px 10px; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
         
@@ -89,30 +83,33 @@
         
         .download-btn { padding: 8px 16px; background-color: #888888; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-family: 'Gowun Dodum', sans-serif; transition: background-color 0.2s; }
         .download-btn:hover { background-color: #666666; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 640px; text-align: center; }
-        #cropCanvas { border: 2px solid #ccc; cursor: move; touch-action: none; background: #eee; }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 640px; text-align: center; }
+        #cropCanvas { border: 2px solid #ccc; cursor: move; touch-action: none; background: #eee; width: 100%; max-width: 600px; aspect-ratio: 600/450; }
         .modal-btns { margin-top: 15px; display: flex; gap: 10px; justify-content: center; }
+        
         @media (max-width: 768px) {
             body { padding: 10px; }
-            .result-area { position: sticky; top: 0; padding: 10px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: -10px -10px 10px -10px; width: calc(100% + 20px); }
+            .result-area { position: sticky; top: 0; padding: 10px; border-radius: 0 0 12px 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: -10px -10px 10px -10px; width: calc(100% + 20px); transition: transform 0.3s ease; }
             .preview-container { height: auto; min-height: 240px; }
             .controls-area { width: 100%; margin-top: 5px; }
         }
-        #scaleWrapper {
-    position: relative;
-    width: 600px;
-    height: 450px;
-    transform-origin: top left;
-}
+        #scaleWrapper { position: relative; width: 600px; height: 450px; transform-origin: top left; }
     </style>
 </head>
 <body>
 
     <div class="modal-overlay" id="cropModal">
         <div class="modal-content">
-            <h3>원하는 부분으로 드래그하고 휠로 확대하세요</h3>
+            <h3>이미지 위치 및 크기 조절</h3>
             <canvas id="cropCanvas" width="600" height="450"></canvas>
+            
+            <div style="margin: 15px 0;">
+                <label style="font-size: 0.9rem;">확대/축소</label>
+                <input type="range" id="zoomSlider" min="0.1" max="5" step="0.1" value="1" style="width: 100%;">
+            </div>
+
             <div class="modal-btns">
                 <button class="download-btn" onclick="applyCrop()">적용</button>
                 <button class="clear-btn" onclick="closeModal()">취소</button>
@@ -121,10 +118,10 @@
     </div>
 
     <div class="main-layout">
-        <div class="result-area">
+        <div class="result-area" id="resultArea">
             <div class="result-header">
-                <h3>미리보기</h3>
-                <button class="download-btn" onclick="saveAsImage()">이미지 저장</button>
+                <h3>미리보기 <button class="toggle-btn" onclick="togglePreview()">접기/펼치기</button></h3>
+                <button class="download-btn" onclick="saveAsImage()">저장</button>
             </div>
             <div class="preview-container" id="previewContainer">
                 <div id="scaleWrapper">
@@ -240,10 +237,29 @@
     let imgScale = 1; 
     const canvas = document.getElementById('cropCanvas');
     const ctx = canvas.getContext('2d');
+    const zoomSlider = document.getElementById('zoomSlider');
+
+    // 1. 미리보기 접기/펼치기
+    function togglePreview() {
+        const container = document.getElementById('previewContainer');
+        if (container.style.display === 'none') {
+            container.style.display = 'flex';
+        } else {
+            container.style.display = 'none';
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // 투명도/줌 슬라이더 이벤트
         document.getElementById('bgOpacity').addEventListener('input', (e) => {
             document.getElementById('bgImg').style.opacity = e.target.value;
+        });
+
+        zoomSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            imgScale = val;
+            applyBoundaries();
+            drawCropView();
         });
 
         document.getElementById('bgImageInput').addEventListener('click', function() { this.value = ''; });
@@ -255,11 +271,10 @@
                 const img = new Image();
                 img.onload = () => {
                     rawImage = img;
-                    const minScale = Math.max(600 / rawImage.width, 450 / rawImage.height);
-                    imgScale = minScale;
-                    cropX = (600 - rawImage.width * imgScale) / 2;
-                    cropY = (450 - rawImage.height * imgScale) / 2;
-                    
+                    imgScale = 1;
+                    zoomSlider.value = 1;
+                    cropX = (600 - rawImage.width) / 2;
+                    cropY = (450 - rawImage.height) / 2;
                     document.getElementById('cropModal').style.display = 'flex';
                     drawCropView();
                 };
@@ -268,28 +283,39 @@
             reader.readAsDataURL(file);
         });
 
+        // 드래그 로직 (Mouse & Touch 공용)
         let isDragging = false;
         let startX, startY;
-        canvas.addEventListener('mousedown', e => { isDragging = true; startX = e.offsetX - cropX; startY = e.offsetY - cropY; });
-        canvas.addEventListener('mousemove', e => {
-            if (!isDragging) return;
-            cropX = e.offsetX - startX;
-            cropY = e.offsetY - startY;
-            applyBoundaries();
-            drawCropView();
-        });
-        canvas.addEventListener('mouseup', () => isDragging = false);
 
-        canvas.addEventListener('wheel', e => {
+        const startMove = (e) => {
+            isDragging = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const rect = canvas.getBoundingClientRect();
+            startX = (clientX - rect.left) - cropX;
+            startY = (clientY - rect.top) - cropY;
+        };
+
+        const moving = (e) => {
+            if (!isDragging) return;
             e.preventDefault();
-            const zoomFactor = 0.0005; 
-            const delta = -e.deltaY;
-            const newScale = imgScale * (1 + delta * zoomFactor);
-            const minScale = Math.max(600 / rawImage.width, 450 / rawImage.height);
-            imgScale = Math.max(minScale, Math.min(newScale, 5.0));
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const rect = canvas.getBoundingClientRect();
+            cropX = (clientX - rect.left) - startX;
+            cropY = (clientY - rect.top) - startY;
             applyBoundaries();
             drawCropView();
-        }, {passive: false});
+        };
+
+        const stopMove = () => { isDragging = false; };
+
+        canvas.addEventListener('mousedown', startMove);
+        window.addEventListener('mousemove', moving);
+        window.addEventListener('mouseup', stopMove);
+        canvas.addEventListener('touchstart', startMove);
+        canvas.addEventListener('touchmove', moving, {passive: false});
+        canvas.addEventListener('touchend', stopMove);
 
         document.querySelectorAll('input[name="personMode"]').forEach(radio => {
             radio.addEventListener('change', function() {
@@ -327,7 +353,6 @@
         tempCanvas.height = 450;
         const tempCtx = tempCanvas.getContext('2d');
         tempCtx.drawImage(rawImage, cropX, cropY, rawImage.width * imgScale, rawImage.height * imgScale);
-        
         const bgImg = document.getElementById('bgImg');
         bgImg.src = tempCanvas.toDataURL('image/png');
         document.getElementById('bgLayer').style.display = 'block';
@@ -345,14 +370,10 @@
 
     function saveAsImage() {
         const target = document.getElementById('captureTarget');
-        html2canvas(target, { 
-            backgroundColor: '#f4f5f6', 
-            scale: 2, 
-            useCORS: true
-        }).then(canvas => {
+        html2canvas(target, { backgroundColor: '#f4f5f6', scale: 2, useCORS: true }).then(canvas => {
             const link = document.createElement('a');
             link.download = "기억의_조각.png";
-            link.href = canvas.toDataURL('image/png'); 
+            link.href = canvas.toDataURL('image/png');
             link.click();
         });
     }
