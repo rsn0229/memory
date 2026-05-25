@@ -96,7 +96,7 @@
 
     <div class="modal-overlay" id="cropModal">
         <div class="modal-content">
-            <h3>영역을 드래그해 옮기고 휠로 확대하세요</h3>
+            <h3>원하는 부분으로 드래그하고 휠로 확대하세요</h3>
             <canvas id="cropCanvas" width="600" height="450"></canvas>
             <div class="modal-btns">
                 <button class="download-btn" onclick="applyCrop()">적용</button>
@@ -152,7 +152,7 @@
 
         <div class="controls-area">
             <div class="maker-container">
-                <h2 class="maker-title">기억의 조각 만들기</h2>
+                <h2 class="maker-title">기억의 조각 남기기</h2>
                 <form id="itemForm" onsubmit="event.preventDefault();">
                     <div class="mode-toggle">
                         <input type="radio" id="mode1" name="personMode" value="1" checked>
@@ -161,7 +161,7 @@
                         <label for="mode2">2인</label>
                     </div>
                     <div class="input-group">
-                        <label for="bgImageInput">배경 이미지 설정</label>
+                        <label for="bgImageInput">배경 이미지 (선택)</label>
                         <div class="file-input-wrapper">
                             <input type="file" id="bgImageInput" accept="image/*">
                             <button type="button" class="clear-btn" onclick="removeBgImage()">지우기</button>
@@ -172,12 +172,14 @@
                     </div>
                     <div class="input-group">
                         <label for="commissionInput">배경 이미지 출처</label>
+                        <div class="input-help">커미션 출처를 적으면 아이디 아래에 표기됩니다. (선택)</div>
                         <input type="text" id="commissionInput" placeholder="예: Commission by. 000">
                     </div>
                     <div id="person1Controls">
                         <div class="section-title">첫 번째 기억</div>
                         <div class="input-group">
                             <label for="itemEmoji1">아이템 이모지</label>
+                            <div class="input-help">윈도우키 + 마침표(.)를 눌러 이모지를 추가하세요.</div>
                             <input type="text" id="itemEmoji1" value="🪼">
                         </div>
                         <div class="input-group">
