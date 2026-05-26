@@ -239,13 +239,10 @@
     const ctx = canvas.getContext('2d');
     const zoomSlider = document.getElementById('zoomSlider');
 
-
-// 1. 미리보기 접기/펼치기 (수정)
     function togglePreview() {
         const container = document.getElementById('previewContainer');
         if (container.style.display === 'none') {
             container.style.display = 'flex';
-            // 브라우저가 display: flex를 적용하고 화면에 그릴 시간을 줍니다.
             requestAnimationFrame(() => {
                 resizePreview();
             });
@@ -255,17 +252,20 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // 투명도/줌 슬라이더 이벤트
         document.getElementById('bgOpacity').addEventListener('input', (e) => {
             document.getElementById('bgImg').style.opacity = e.target.value;
         });
 
         zoomSlider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            imgScale = val;
-            applyBoundaries();
-            drawCropView();
-        });
+        const newScale = parseFloat(e.target.value);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        cropY = centerY - (centerY - cropY) * (newScale / imgScale);
+        imgScale = newScale;
+        
+        applyBoundaries();
+        drawCropView();
+    });
 
         document.getElementById('bgImageInput').addEventListener('click', function() { this.value = ''; });
         document.getElementById('bgImageInput').addEventListener('change', function(e) {
@@ -288,7 +288,6 @@
             reader.readAsDataURL(file);
         });
 
-        // 드래그 로직 (Mouse & Touch 공용)
         let isDragging = false;
         let startX, startY;
 
@@ -376,18 +375,14 @@
 function saveAsImage() {
         const target = document.getElementById('captureTarget');
         const wrapper = document.getElementById('scaleWrapper');
-        
-        // 1. 캡처 전에 transform을 일시적으로 초기화 (글자 겹침 방지)
         const originalTransform = wrapper.style.transform;
         wrapper.style.transform = 'none';
 
-        // 2. 캡처 실행
         html2canvas(target, { 
             backgroundColor: '#f4f5f6', 
             scale: 2, 
             useCORS: true 
         }).then(canvas => {
-            // 3. 캡처 성공 후 transform 복구
             wrapper.style.transform = originalTransform;
 
             const link = document.createElement('a');
@@ -395,16 +390,13 @@ function saveAsImage() {
             link.href = canvas.toDataURL('image/png');
             link.click();
         }).catch(err => {
-            // 4. 에러 발생 시에도 복구
             wrapper.style.transform = originalTransform;
             console.error("캡처 실패:", err);
         });
     }
 
-    // 2. 미리보기 크기 조절 (수정)
     function resizePreview() {
         const container = document.getElementById('previewContainer');
-        // 요소가 숨겨져 있다면(offsetWidth가 0이면) 계산을 하지 않습니다.
         if (container.offsetWidth === 0) return;
 
         const scaleWrapper = document.getElementById('scaleWrapper');
