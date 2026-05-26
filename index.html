@@ -337,10 +337,19 @@
     function applyBoundaries() {
         const w = rawImage.width * imgScale;
         const h = rawImage.height * imgScale;
-        if (cropX > 0) cropX = 0;
-        if (cropX < 600 - w) cropX = 600 - w;
-        if (cropY > 0) cropY = 0;
-        if (cropY < 450 - h) cropY = 450 - h;
+        if (w <= 600) {
+            cropX = (600 - w) / 2; 
+        } else {
+            if (cropX > 0) cropX = 0;
+            if (cropX < 600 - w) cropX = 600 - w;
+        }
+
+        if (h <= 450) {
+            cropY = (450 - h) / 2; 
+        } else {
+            if (cropY > 0) cropY = 0;
+            if (cropY < 450 - h) cropY = 450 - h;
+        }
     }
 
     function drawCropView() {
